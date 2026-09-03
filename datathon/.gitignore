@@ -28,5 +28,4 @@ dist-ssr
 !.env.example
 SUPABASE_SETUP.md
 
-# Lockfile: lo genera "npm install" en cada equipo
 package-lock.json
