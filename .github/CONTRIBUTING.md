@@ -65,7 +65,7 @@ When submitting a pull request, please ensure that your code adheres to the foll
 - Write a clear summary of the changes made in the pull request description, to then write a detailed description of the changes made, including any relevant context or background information. You can adhere to the following template for your pull request:
 
 ```md
-# Summary
+## Summary
 Write a sythesis of the changes made in the pull request. (No more than 100 words) (Do not use AI for this section) 
 
 <!-- Video or image of the change -->
