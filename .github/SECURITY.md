@@ -1,6 +1,8 @@
 # Security Policy
 ## Reporting a Vulnerability
-Please send a detailed mail to [@betsnb](https://github.com/betsnb) at [A01413243@tec.mx](mailto:A01413243@tec.mx) and/or to [@TEC-Andres](https://github.com/TEC-Andres) at [A01287002@tec.mx](mailto:A01287002@tec.mx) with a detailed description of the vulnerability. Vulnerabilities will be handled on a case-by-case basis; the reporter will be contacted with a response and further instructions. Please do not post any vulnerabilities publicly until they have been resolved.
+Please report any security vulnerabilities you discover in this repository by accessing the [GitHub Security Advisories](https://github.com/Data-Science-Club-TEC/datathon-webpage/security/advisories) page. This allows for private disclosure of security issues, ensuring that they can be addressed without exposing sensitive information to the public.
+
+When reporting a vulnerability, please provide as much detail as possible to help us understand and address the issue effectively.
 
 We expect for details to include:
 - A detailed description of the vulnerability, including steps to reproduce it.
