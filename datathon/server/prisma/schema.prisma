@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["public"]
+}
+
+model User {
+  id              BigInt   @id @default(autoincrement())
+  name            String
+  lastName        String   @map("last_name")
+  username        String   @unique
+  email           String   @unique
+  gender          String   @db.VarChar(10)
+  academicProgram String   @map("academic_program")
+  school          String?
+  profileImg      String?  @map("profile_img")
+  githubUrl       String?  @map("github_url")
+  linkedinUrl     String?  @map("linkedin_url")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("users")
+  @@schema("public")
+}

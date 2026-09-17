@@ -1,0 +1,22 @@
+{
+  "name": "data-science-club",
+  "version": "1.0.0",
+  "description": "Paquetes y configuracion del backend del DSC",
+  "license": "ISC",
+  "author": "Software Coordination",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "prisma skills sync || exit 0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "prisma": "^7.10.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.10.0"
+  }
+}
