@@ -15,4 +15,4 @@ export interface UserRow {
   created_at: string;
 }
 
-// export type User = AutoCamelCase<Omit<UserRow, 'id' | >>
+export type User = AutoCamelCase<Omit<UserRow, "id" | "created_at" | "gender">>;
