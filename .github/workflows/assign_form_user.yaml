@@ -37,10 +37,21 @@ jobs:
               return;
             }
 
-            const { graphql } = require("@octokit/graphql");
-            const client = graphql.defaults({
-              headers: { authorization: `token ${pat}` }
-            });
+            async function gql(query, variables = {}) {
+              const res = await fetch('https://api.github.com/graphql', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `token ${pat}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query, variables })
+              });
+              const json = await res.json();
+              if (json.errors) {
+                throw new Error(json.errors.map(e => e.message).join('; '));
+              }
+              return json.data;
+            }
 
             // Detect frontend template
             const isFrontend = body.includes('TODO (Summary)') && body.includes('Scope of Work');
@@ -58,7 +69,7 @@ jobs:
             // Discover available projects
             let project = null;
             try {
-              const orgRes = await client(`
+              const orgRes = await gql(`
                 query($owner: String!) {
                   organization(login: $owner) {
                     projectsV2(first: 10) {
@@ -81,7 +92,7 @@ jobs:
             // Fallback: try user projects
             if (!project) {
               try {
-                const userRes = await client(`
+                const userRes = await gql(`
                   query {
                     viewer {
                       projectsV2(first: 10) {
@@ -103,7 +114,7 @@ jobs:
             }
 
             if (!project) {
-              core.setFailed('No accessible projects found. Check that PROJECT_PAT has "repo" and "read:org" scopes, and that the token owner is a member of the Data-Science-Club-TEC org.');
+              core.setFailed('No accessible projects found. Check PROJECT_PAT scopes (needs "project" scope) and org membership.');
               return;
             }
 
@@ -112,7 +123,7 @@ jobs:
             // Fetch full project with fields
             let allFields;
             try {
-              const fullRes = await client(`
+              const fullRes = await gql(`
                 query($id: ID!) {
                   node(id: $id) {
                     ... on ProjectV2 {
@@ -151,7 +162,7 @@ jobs:
             // Add issue to project
             let itemId;
             try {
-              const addRes = await client(`
+              const addRes = await gql(`
                 mutation($projectId: ID!, $contentId: ID!) {
                   addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
                     item { id }
@@ -174,7 +185,7 @@ jobs:
                 );
                 if (iteration) {
                   try {
-                    await client(`
+                    await gql(`
                       mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: ID!) {
                         updateProjectV2ItemFieldValue(input: {
                           projectId: $projectId
@@ -203,7 +214,7 @@ jobs:
                 const frontendOpt = areaField.options.find(o => o.name === 'Frontend');
                 if (frontendOpt) {
                   try {
-                    await client(`
+                    await gql(`
                       mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
                         updateProjectV2ItemFieldValue(input: {
                           projectId: $projectId
