@@ -9,26 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      projects: write
     steps:
       - name: Add to Project and Set Fields
         uses: actions/github-script@v7
-        env:
-          PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
         with:
           script: |
             const issue = context.payload.issue;
             const body = issue.body || '';
             const owner = 'Data-Science-Club-TEC';
-
-            const pat = process.env.PROJECT_PAT;
-            if (!pat) {
-              core.setFailed('PROJECT_PAT secret is not set');
-              return;
-            }
-
-            const client = github.graphql.defaults({
-              headers: { authorization: `token ${pat}` }
-            });
+            const client = github.graphql;
 
             // Detect frontend template
             const isFrontend = body.includes('TODO (Summary)') && body.includes('Scope of Work');
@@ -91,7 +81,7 @@ jobs:
             }
 
             if (!project) {
-              core.setFailed('No accessible projects found. Check PAT scopes and org membership.');
+              core.setFailed('No accessible projects found. Check GITHUB_TOKEN projects permission and org project access.');
               return;
             }
 
