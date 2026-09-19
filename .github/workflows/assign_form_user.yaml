@@ -2,14 +2,26 @@ name: Add Issue to Project
 
 on:
   issues:
-    types: [opened]
+    types: [opened, edited]
 
 jobs:
   add-to-project:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      projects: write
     steps:
+      - name: Debug PAT
+        env:
+          PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
+        run: |
+          if [ -z "$PROJECT_PAT" ]; then
+            echo "ERROR: PROJECT_PAT secret is empty or not set"
+            exit 1
+          fi
+          echo "PAT length: ${#PROJECT_PAT}"
+          echo "PAT prefix: ${PROJECT_PAT:0:4}..."
+
       - name: Add to Project and Set Fields
         uses: actions/github-script@v7
         env:
@@ -91,7 +103,7 @@ jobs:
             }
 
             if (!project) {
-              core.setFailed('No accessible projects found. Check PAT scopes and org membership.');
+              core.setFailed('No accessible projects found. Check GITHUB_TOKEN projects permission and org project access.');
               return;
             }
 
