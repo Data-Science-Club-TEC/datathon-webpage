@@ -1,15 +1,15 @@
 name: Frontend feature request
 description: Request a new feature in Frontend.
 title: "[FEATURE]: "
-labels: ["feature"]
+issue-type: feature
 projects: ["Data-Science-Club-TEC/1"]
 body:
   - type: textarea
-    id: todo
+    id: todo_summary
     attributes:
-      label: TODO
-      value: |
-        Let's see if y'all can cook a Figma for the page!
+      label: TODO (Summary)
+      description: A 50 to 150 word synthesis on what needs to be done.
+      placeholder: Write a concise synthesis of the task...
     validations:
       required: true
 
@@ -17,7 +17,20 @@ body:
     id: scope_of_work
     attributes:
       label: Scope of Work
-      value: |
-        As title explains, we need a better figma than the one made by the previous generation. Make two Figmas, one for Light mode and another one for Dark mode.
+      description: Detailed explanation of the feature and requirements.
+      placeholder: Provide full technical details, acceptance criteria, and user stories...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Target Sprint
+      description: Select target sprint.
+      options:
+        - Sprint 3
+        - Sprint 4
+        - Sprint 5
+        - Sprint 6
     validations:
       required: true

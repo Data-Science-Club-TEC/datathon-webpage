@@ -1,57 +1,37 @@
-name: Auto Assign and Project Setup
+name: Parse Issue Sprint & Type
+
 on:
   issues:
-    types: [opened]
+    types: [opened, edited]
 
 jobs:
-  assign_and_project:
+  label-issue:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      repository-projects: write
     steps:
-      - name: Add Issue to Project V2 & Apply Default Labels
+      - name: Parse Sprint and Apply Labels
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.AUTO_ASSIGN_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const orgName = "Data-Science-Club-TEC";
-            const projectNumber = 1;
+            const issue = context.payload.issue;
+            const body = issue.body || '';
 
-            // 1. Optional: Apply TBD labels to repository issue
+            const labelsToAdd = ['feature'];
+
+            // Extract Sprint option selected in the issue form (e.g., "Sprint 3")
+            const sprintMatch = body.match(/###\s*Sprint\s*\r?\n+([^\r\n]+)/i);
+            if (sprintMatch) {
+              const sprintValue = sprintMatch[1].trim();
+              if (sprintValue && !sprintValue.includes('_No response_')) {
+                labelsToAdd.push(sprintValue);
+              }
+            }
+
+            // Apply 'feature' + parsed 'Sprint X' label
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.payload.issue.number,
-              labels: ['priority: tbd', 'effort: tbd']
+              issue_number: issue.number,
+              labels: labelsToAdd
             });
 
-            // 2. Add Issue directly to Project V2
-            const projectQuery = `
-              query($org: String!, $number: Int!) {
-                organization(login: $org) {
-                  projectV2(number: $number) {
-                    id
-                  }
-                }
-              }
-            `;
-
-            try {
-              const projectData = await github.graphql(projectQuery, { org: orgName, number: projectNumber });
-              const projectId = projectData.organization.projectV2.id;
-
-              const addItemMutation = `
-                mutation($projectId: ID!, $contentId: ID!) {
-                  addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
-                    item { id }
-                  }
-                }
-              `;
-              await github.graphql(addItemMutation, {
-                projectId: projectId,
-                contentId: context.payload.issue.node_id
-              });
-            } catch (error) {
-              console.error("Project V2 Update Error:", error);
-            }
+            console.log(`Applied labels: ${labelsToAdd.join(', ')}`);
