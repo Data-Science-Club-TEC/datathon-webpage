@@ -1,13 +1,14 @@
 name: Frontend feature request
 description: Request a new feature in Frontend.
 title: "[FEATURE]: "
-issue-type: feature
+labels: ["feature"]
 projects: ["Data-Science-Club-TEC/1"]
 body:
   - type: markdown
     attributes:
       value: |
         # Summary
+
   - type: input
     id: summary_todo
     attributes:
@@ -22,7 +23,6 @@ body:
     attributes:
       label: Assignee
       description: Choose who should be assigned to this request.
-      # Retrieve the list of assignees from @datathon-webpage/Area
       options:
         - betsnb
         - flairformarya
