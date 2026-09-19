@@ -1,0 +1,57 @@
+# Frontend issue
+name: Frontend feature request
+description: Request a new feature in Frontend.
+title: "[FEATURE]: "
+labels: ["feature"]
+projects: ["Data-Science-Club-TEC/1"]
+body:
+  - type: dropdown
+    id: assignee_select
+    attributes:
+      label: Assignee
+      description: Choose who should be assigned to this request.
+      # Retrieve the list of assignees from @datathon-webpage/Area
+      options:
+        - betsnb
+        - flairformarya
+        - L-EdMtz
+        - unassigned
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Priority level for this feature.
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Effort
+      description: Estimated effort required.
+      options:
+        - High
+        - Medium
+        - Low
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Sprint
+      description: Select target sprint.
+      options:
+        - Sprint 3
+        - Sprint 4
+        - Sprint 5
+        - Sprint 6
+    validations:
+      required: true
