@@ -37,7 +37,8 @@ jobs:
               return;
             }
 
-            const client = github.graphql.defaults({
+            const { graphql } = require("@octokit/graphql");
+            const client = graphql.defaults({
               headers: { authorization: `token ${pat}` }
             });
 
