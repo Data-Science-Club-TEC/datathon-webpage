@@ -10,144 +10,48 @@ jobs:
       issues: write
       repository-projects: write
     steps:
-      - name: Process Issue Form & Update Project Fields
+      - name: Add Issue to Project V2 & Apply Default Labels
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.AUTO_ASSIGN_TOKEN }}
+          github-token: ${{ secrets.AUTO_ASSIGN_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            const body = context.payload.issue.body || '';
+            const orgName = "Data-Science-Club-TEC";
+            const projectNumber = 1;
 
-            const parseField = (label) => {
-              const regex = new RegExp(`### ${label}\\s*[\\r\\n]+([^\\r\\n]+)`, 'i');
-              const match = body.match(regex);
-              if (match && match[1]) {
-                const val = match[1].trim();
-                return val !== '_No response_' ? val : null;
+            // 1. Optional: Apply TBD labels to repository issue
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              labels: ['priority: tbd', 'effort: tbd']
+            });
+
+            // 2. Add Issue directly to Project V2
+            const projectQuery = `
+              query($org: String!, $number: Int!) {
+                organization(login: $org) {
+                  projectV2(number: $number) {
+                    id
+                  }
+                }
               }
-              return null;
-            };
+            `;
 
-            const assignee = parseField('Assignee');
-            const priority = parseField('Priority');
-            const effort = parseField('Effort');
-            const sprint = parseField('Sprint');
+            try {
+              const projectData = await github.graphql(projectQuery, { org: orgName, number: projectNumber });
+              const projectId = projectData.organization.projectV2.id;
 
-            // 1. Assign User (skips execution if 'unassigned' is selected)
-            if (assignee && assignee.toLowerCase() !== 'unassigned') {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.issue.number,
-                assignees: [assignee]
-              });
-            }
-
-            // 2. Add Repository Labels (Priority & Effort)
-            const labelsToAdd = [];
-            if (priority) labelsToAdd.push(`priority:${priority.toLowerCase()}`);
-            if (effort) labelsToAdd.push(`effort:${effort.toLowerCase()}`);
-
-            if (labelsToAdd.length > 0) {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.issue.number,
-                labels: labelsToAdd
-              });
-            }
-
-            // 3. Set Project V2 Iteration / Sprint Field
-            if (sprint) {
-              const orgName = "Data-Science-Club-TEC";
-              const projectNumber = 1;
-
-              const projectQuery = `
-                query($org: String!, $number: Int!) {
-                  organization(login: $org) {
-                    projectV2(number: $number) {
-                      id
-                      fields(first: 20) {
-                        nodes {
-                          ... on ProjectV2IterationField {
-                            id
-                            name
-                            configuration {
-                              iterations {
-                                id
-                                title
-                              }
-                            }
-                          }
-                          ... on ProjectV2SingleSelectField {
-                            id
-                            name
-                            options {
-                              id
-                              name
-                            }
-                          }
-                        }
-                      }
-                    }
+              const addItemMutation = `
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
+                    item { id }
                   }
                 }
               `;
-
-              try {
-                const projectData = await github.graphql(projectQuery, { org: orgName, number: projectNumber });
-                const project = projectData.organization.projectV2;
-
-                const addItemMutation = `
-                  mutation($projectId: ID!, $contentId: ID!) {
-                    addProjectV2ItemById(input: {projectId: $projectId, contentId: $contentId}) {
-                      item { id }
-                    }
-                  }
-                `;
-                const itemData = await github.graphql(addItemMutation, {
-                  projectId: project.id,
-                  contentId: context.payload.issue.node_id
-                });
-                const itemId = itemData.addProjectV2ItemById.item.id;
-
-                const sprintField = project.fields.nodes.find(f => f.name && f.name.toLowerCase() === 'sprint');
-
-                if (sprintField) {
-                  if (sprintField.configuration?.iterations) {
-                    const iteration = sprintField.configuration.iterations.find(i => 
-                      i.title.toLowerCase().includes(sprint.toLowerCase())
-                    );
-                    if (iteration) {
-                      await github.graphql(`
-                        mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
-                          updateProjectV2ItemFieldValue(input: {
-                            projectId: $projectId,
-                            itemId: $itemId,
-                            fieldId: $fieldId,
-                            value: { iterationId: $iterationId }
-                          }) { projectV2Item { id } }
-                        }
-                      `, { projectId: project.id, itemId, fieldId: sprintField.id, iterationId: iteration.id });
-                    }
-                  } else if (sprintField.options) {
-                    const option = sprintField.options.find(o => 
-                      o.name.toLowerCase().includes(sprint.toLowerCase())
-                    );
-                    if (option) {
-                      await github.graphql(`
-                        mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $singleSelectOptionId: String!) {
-                          updateProjectV2ItemFieldValue(input: {
-                            projectId: $projectId,
-                            itemId: $itemId,
-                            fieldId: $fieldId,
-                            value: { singleSelectOptionId: $singleSelectOptionId }
-                          }) { projectV2Item { id } }
-                        }
-                      `, { projectId: project.id, itemId, fieldId: sprintField.id, singleSelectOptionId: option.id });
-                    }
-                  }
-                }
-              } catch (error) {
-                console.error("Project V2 Update Error:", error);
-              }
+              await github.graphql(addItemMutation, {
+                projectId: projectId,
+                contentId: context.payload.issue.node_id
+              });
+            } catch (error) {
+              console.error("Project V2 Update Error:", error);
             }
