@@ -81,7 +81,7 @@ jobs:
             }
 
             if (!project) {
-              core.setFailed('No accessible projects found. Check PAT scopes and org membership.');
+              core.setFailed('No accessible projects found. Check GITHUB_TOKEN projects permission and org project access.');
               return;
             }
 
