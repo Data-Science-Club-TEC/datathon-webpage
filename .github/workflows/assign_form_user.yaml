@@ -7,6 +7,9 @@ on:
 jobs:
   label-issue:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      repository-projects: read
     steps:
       - name: Parse Sprint and Apply Labels
         uses: actions/github-script@v7
@@ -18,7 +21,7 @@ jobs:
             const labelsToAdd = ['feature'];
 
             // Extract Sprint option selected in the issue form (e.g., "Sprint 3")
-            const sprintMatch = body.match(/###\s*Sprint\s*\r?\n+([^\r\n]+)/i);
+            const sprintMatch = body.match(/###\s*Target Sprint\s*\r?\n+([^\r\n]+)/i);
             if (sprintMatch) {
               const sprintValue = sprintMatch[1].trim();
               if (sprintValue && !sprintValue.includes('_No response_')) {
@@ -35,3 +38,142 @@ jobs:
             });
 
             console.log(`Applied labels: ${labelsToAdd.join(', ')}`);
+
+      - name: Add Issue to Project and Set Fields
+        uses: actions/github-script@v7
+        env:
+          PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const projectNumber = 1;
+
+            // Use PAT for Projects V2 GraphQL (GITHUB_TOKEN lacks scope)
+            const patClient = github.graphql.defaults({
+              headers: { authorization: `token ${process.env.PROJECT_PAT}` }
+            });
+
+            // Detect if issue was created from frontend_feature_request.yaml
+            const isFrontendTemplate = body.includes('TODO (Summary)') && body.includes('Scope of Work');
+
+            // Parse sprint value
+            const sprintMatch = body.match(/###\s*Target Sprint\s*\r?\n+([^\r\n]+)/i);
+            let sprintValue = null;
+            if (sprintMatch) {
+              const val = sprintMatch[1].trim();
+              if (val && !val.includes('_No response_')) {
+                sprintValue = val;
+              }
+            }
+
+            // Get project ID
+            const projectQuery = await patClient(`
+              query($owner: String!, $number: Int!) {
+                organization(login: $owner) {
+                  projectV2(number: $number) {
+                    id
+                    fields(first: 20) {
+                      nodes {
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `, { owner, number: projectNumber });
+
+            const project = projectQuery.organization.projectV2;
+            const projectId = project.id;
+
+            // Find Sprint and Area fields
+            const sprintField = project.fields.nodes.find(f => f.name === 'Sprint');
+            const areaField = project.fields.nodes.find(f => f.name === 'Area');
+
+            // Add issue to project
+            const addMutation = await patClient(`
+              mutation($projectId: ID!, $issueId: ID!) {
+                addProjectV2ItemById(input: { projectId: $projectId, contentId: $issueId }) {
+                  item {
+                    id
+                  }
+                }
+              }
+            `, { projectId, issueId: issue.node_id });
+
+            const itemId = addMutation.addProjectV2ItemById.item.id;
+            console.log(`Added issue #${issue.number} to project`);
+
+            // Set Sprint field
+            if (sprintField && sprintValue) {
+              const sprintOption = sprintField.options.find(o => o.name === sprintValue);
+              if (sprintOption) {
+                await patClient(`
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      singleSelectOptionId: $optionId
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `, { projectId, itemId, fieldId: sprintField.id, optionId: sprintOption.id });
+                console.log(`Set Sprint to: ${sprintValue}`);
+              }
+            }
+
+            // Set Area to Frontend if created from frontend template
+            if (isFrontendTemplate && areaField) {
+              const frontendOption = areaField.options.find(o => o.name === 'Frontend');
+              if (frontendOption) {
+                await patClient(`
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      singleSelectOptionId: $optionId
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `, { projectId, itemId, fieldId: areaField.id, optionId: frontendOption.id });
+                console.log('Set Area to: Frontend');
+              }
+            }
+
+      - name: Remove Target Sprint Section from Issue Body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Strip the "### Target Sprint" section (up to next ### or end of body)
+            const cleanedBody = body.replace(
+              /###\s*Target Sprint\s*\r?\n([\s\S]*?)(?=###|$)/i,
+              ''
+            ).trim();
+
+            if (cleanedBody !== body.trim()) {
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: issue.number,
+                body: cleanedBody
+              });
+              console.log('Removed Target Sprint section from issue body');
+            }
