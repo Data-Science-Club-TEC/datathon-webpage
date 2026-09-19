@@ -102,7 +102,7 @@ jobs:
             }
 
             if (!project) {
-              core.setFailed('No accessible projects found. Check GITHUB_TOKEN projects permission and org project access.');
+              core.setFailed('No accessible projects found. Check that PROJECT_PAT has "repo" and "read:org" scopes, and that the token owner is a member of the Data-Science-Club-TEC org.');
               return;
             }
 
