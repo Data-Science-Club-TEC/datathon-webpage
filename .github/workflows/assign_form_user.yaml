@@ -1,45 +1,16 @@
-name: Parse Issue Sprint & Type
+name: Add Issue to Project
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
 
 jobs:
-  label-issue:
+  add-to-project:
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      repository-projects: read
     steps:
-      - name: Parse Sprint and Apply Labels
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issue = context.payload.issue;
-            const body = issue.body || '';
-
-            const labelsToAdd = ['feature'];
-
-            // Extract Sprint option selected in the issue form (e.g., "Sprint 3")
-            const sprintMatch = body.match(/###\s*Target Sprint\s*\r?\n+([^\r\n]+)/i);
-            if (sprintMatch) {
-              const sprintValue = sprintMatch[1].trim();
-              if (sprintValue && !sprintValue.includes('_No response_')) {
-                labelsToAdd.push(sprintValue);
-              }
-            }
-
-            // Apply 'feature' + parsed 'Sprint X' label
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              labels: labelsToAdd
-            });
-
-            console.log(`Applied labels: ${labelsToAdd.join(', ')}`);
-
-      - name: Add Issue to Project and Set Fields
+      - name: Add to Project and Set Fields
         uses: actions/github-script@v7
         env:
           PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
@@ -47,17 +18,21 @@ jobs:
           script: |
             const issue = context.payload.issue;
             const body = issue.body || '';
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            const owner = 'Data-Science-Club-TEC';
             const projectNumber = 1;
 
-            // Use PAT for Projects V2 GraphQL (GITHUB_TOKEN lacks scope)
-            const patClient = github.graphql.defaults({
-              headers: { authorization: `token ${process.env.PROJECT_PAT}` }
+            const pat = process.env.PROJECT_PAT;
+            if (!pat) {
+              core.setFailed('PROJECT_PAT secret is not set');
+              return;
+            }
+
+            const client = github.graphql.defaults({
+              headers: { authorization: `token ${pat}` }
             });
 
-            // Detect if issue was created from frontend_feature_request.yaml
-            const isFrontendTemplate = body.includes('TODO (Summary)') && body.includes('Scope of Work');
+            // Detect frontend template
+            const isFrontend = body.includes('TODO (Summary)') && body.includes('Scope of Work');
 
             // Parse sprint value
             const sprintMatch = body.match(/###\s*Target Sprint\s*\r?\n+([^\r\n]+)/i);
@@ -69,111 +44,140 @@ jobs:
               }
             }
 
-            // Get project ID
-            const projectQuery = await patClient(`
-              query($owner: String!, $number: Int!) {
-                organization(login: $owner) {
-                  projectV2(number: $number) {
-                    id
-                    fields(first: 20) {
-                      nodes {
-                        ... on ProjectV2SingleSelectField {
-                          id
-                          name
-                          options {
+            // Get project
+            let project;
+            try {
+              const res = await client(`
+                query($owner: String!, $number: Int!) {
+                  organization(login: $owner) {
+                    projectV2(number: $number) {
+                      id
+                      fields(first: 50) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
                             id
                             name
+                            options { id name }
+                          }
+                          ... on ProjectV2IterationField {
+                            id
+                            name
+                            configuration {
+                              iterations {
+                                id
+                                title
+                                startDate
+                              }
+                            }
                           }
                         }
                       }
                     }
                   }
                 }
-              }
-            `, { owner, number: projectNumber });
+              `, { owner, number: projectNumber });
+              project = res.organization.projectV2;
+            } catch (err) {
+              core.setFailed(`Failed to fetch project: ${err.message}`);
+              return;
+            }
 
-            const project = projectQuery.organization.projectV2;
             const projectId = project.id;
-
-            // Find Sprint and Area fields
-            const sprintField = project.fields.nodes.find(f => f.name === 'Sprint');
-            const areaField = project.fields.nodes.find(f => f.name === 'Area');
+            const allFields = project.fields.nodes;
 
             // Add issue to project
-            const addMutation = await patClient(`
-              mutation($projectId: ID!, $issueId: ID!) {
-                addProjectV2ItemById(input: { projectId: $projectId, contentId: $issueId }) {
-                  item {
-                    id
+            let itemId;
+            try {
+              const addRes = await client(`
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                    item { id }
+                  }
+                }
+              `, { projectId, contentId: issue.node_id });
+              itemId = addRes.addProjectV2ItemById.item.id;
+              console.log(`Added issue #${issue.number} to project`);
+            } catch (err) {
+              core.setFailed(`Failed to add issue to project: ${err.message}`);
+              return;
+            }
+
+            // Set Sprint (iteration field)
+            if (sprintValue) {
+              const sprintField = allFields.find(f => f.name === 'Sprint');
+              if (sprintField && sprintField.configuration) {
+                const iteration = sprintField.configuration.iterations.find(
+                  i => i.title === sprintValue
+                );
+                if (iteration) {
+                  try {
+                    await client(`
+                      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: ID!) {
+                        updateProjectV2ItemFieldValue(input: {
+                          projectId: $projectId
+                          itemId: $itemId
+                          fieldId: $fieldId
+                          iterationId: $iterationId
+                        }) {
+                          projectV2Item { id }
+                        }
+                      }
+                    `, { projectId, itemId, fieldId: sprintField.id, iterationId: iteration.id });
+                    console.log(`Set Sprint to: ${sprintValue}`);
+                  } catch (err) {
+                    console.log(`Failed to set Sprint: ${err.message}`);
+                  }
+                } else {
+                  console.log(`Sprint iteration "${sprintValue}" not found`);
+                }
+              }
+            }
+
+            // Set Area (single-select field) to Frontend if applicable
+            if (isFrontend) {
+              const areaField = allFields.find(f => f.name === 'Area');
+              if (areaField) {
+                const frontendOpt = areaField.options.find(o => o.name === 'Frontend');
+                if (frontendOpt) {
+                  try {
+                    await client(`
+                      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
+                        updateProjectV2ItemFieldValue(input: {
+                          projectId: $projectId
+                          itemId: $itemId
+                          fieldId: $fieldId
+                          singleSelectOptionId: $optionId
+                        }) {
+                          projectV2Item { id }
+                        }
+                      }
+                    `, { projectId, itemId, fieldId: areaField.id, optionId: frontendOpt.id });
+                    console.log('Set Area to: Frontend');
+                  } catch (err) {
+                    console.log(`Failed to set Area: ${err.message}`);
                   }
                 }
               }
-            `, { projectId, issueId: issue.node_id });
-
-            const itemId = addMutation.addProjectV2ItemById.item.id;
-            console.log(`Added issue #${issue.number} to project`);
-
-            // Set Sprint field
-            if (sprintField && sprintValue) {
-              const sprintOption = sprintField.options.find(o => o.name === sprintValue);
-              if (sprintOption) {
-                await patClient(`
-                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
-                    updateProjectV2ItemFieldValue(input: {
-                      projectId: $projectId
-                      itemId: $itemId
-                      fieldId: $fieldId
-                      singleSelectOptionId: $optionId
-                    }) {
-                      projectV2Item { id }
-                    }
-                  }
-                `, { projectId, itemId, fieldId: sprintField.id, optionId: sprintOption.id });
-                console.log(`Set Sprint to: ${sprintValue}`);
-              }
             }
 
-            // Set Area to Frontend if created from frontend template
-            if (isFrontendTemplate && areaField) {
-              const frontendOption = areaField.options.find(o => o.name === 'Frontend');
-              if (frontendOption) {
-                await patClient(`
-                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
-                    updateProjectV2ItemFieldValue(input: {
-                      projectId: $projectId
-                      itemId: $itemId
-                      fieldId: $fieldId
-                      singleSelectOptionId: $optionId
-                    }) {
-                      projectV2Item { id }
-                    }
-                  }
-                `, { projectId, itemId, fieldId: areaField.id, optionId: frontendOption.id });
-                console.log('Set Area to: Frontend');
-              }
-            }
-
-      - name: Remove Target Sprint Section from Issue Body
+      - name: Strip Target Sprint from Issue Body
         uses: actions/github-script@v7
         with:
           script: |
             const issue = context.payload.issue;
             const body = issue.body || '';
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
 
-            // Strip the "### Target Sprint" section (up to next ### or end of body)
-            const cleanedBody = body.replace(
-              /###\s*Target Sprint\s*\r?\n([\s\S]*?)(?=###|$)/i,
+            const cleaned = body.replace(
+              /###\s*Target Sprint\s*\r?\n[\s\S]*?(?=###\s|\z)/i,
               ''
             ).trim();
 
-            if (cleanedBody !== body.trim()) {
+            if (cleaned !== body.trim()) {
               await github.rest.issues.update({
-                owner,
-                repo,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
                 issue_number: issue.number,
-                body: cleanedBody
+                body: cleaned
               });
-              console.log('Removed Target Sprint section from issue body');
+              console.log('Stripped Target Sprint section');
             }
