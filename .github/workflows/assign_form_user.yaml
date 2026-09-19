@@ -19,7 +19,6 @@ jobs:
             const issue = context.payload.issue;
             const body = issue.body || '';
             const owner = 'Data-Science-Club-TEC';
-            const projectNumber = 1;
 
             const pat = process.env.PROJECT_PAT;
             if (!pat) {
@@ -44,13 +43,67 @@ jobs:
               }
             }
 
-            // Get project
-            let project;
+            // Discover available projects
+            let project = null;
             try {
-              const res = await client(`
-                query($owner: String!, $number: Int!) {
+              const orgRes = await client(`
+                query($owner: String!) {
                   organization(login: $owner) {
-                    projectV2(number: $number) {
+                    projectsV2(first: 10) {
+                      nodes {
+                        id
+                        number
+                        title
+                      }
+                    }
+                  }
+                }
+              `, { owner });
+              const orgProjects = orgRes.organization.projectsV2.nodes;
+              console.log(`Found ${orgProjects.length} org projects: ${orgProjects.map(p => `${p.number}:${p.title}`).join(', ')}`);
+              project = orgProjects.find(p => p.number === 1) || orgProjects[0];
+            } catch (err) {
+              console.log(`Org query failed: ${err.message}`);
+            }
+
+            // Fallback: try user projects
+            if (!project) {
+              try {
+                const userRes = await client(`
+                  query {
+                    viewer {
+                      projectsV2(first: 10) {
+                        nodes {
+                          id
+                          number
+                          title
+                        }
+                      }
+                    }
+                  }
+                `);
+                const userProjects = userRes.viewer.projectsV2.nodes;
+                console.log(`Found ${userProjects.length} user projects: ${userProjects.map(p => `${p.number}:${p.title}`).join(', ')}`);
+                project = userProjects.find(p => p.number === 1) || userProjects[0];
+              } catch (err) {
+                console.log(`User query failed: ${err.message}`);
+              }
+            }
+
+            if (!project) {
+              core.setFailed('No accessible projects found. Check PAT scopes and org membership.');
+              return;
+            }
+
+            console.log(`Using project: ${project.title} (#${project.number})`);
+
+            // Fetch full project with fields
+            let allFields;
+            try {
+              const fullRes = await client(`
+                query($id: ID!) {
+                  node(id: $id) {
+                    ... on ProjectV2 {
                       id
                       fields(first: 50) {
                         nodes {
@@ -66,7 +119,6 @@ jobs:
                               iterations {
                                 id
                                 title
-                                startDate
                               }
                             }
                           }
@@ -75,15 +127,14 @@ jobs:
                     }
                   }
                 }
-              `, { owner, number: projectNumber });
-              project = res.organization.projectV2;
+              `, { id: project.id });
+              allFields = fullRes.node.fields.nodes;
             } catch (err) {
-              core.setFailed(`Failed to fetch project: ${err.message}`);
+              core.setFailed(`Failed to fetch project fields: ${err.message}`);
               return;
             }
 
             const projectId = project.id;
-            const allFields = project.fields.nodes;
 
             // Add issue to project
             let itemId;
@@ -128,7 +179,7 @@ jobs:
                     console.log(`Failed to set Sprint: ${err.message}`);
                   }
                 } else {
-                  console.log(`Sprint iteration "${sprintValue}" not found`);
+                  console.log(`Sprint iteration "${sprintValue}" not found. Available: ${sprintField.configuration.iterations.map(i => i.title).join(', ')}`);
                 }
               }
             }
@@ -156,6 +207,8 @@ jobs:
                   } catch (err) {
                     console.log(`Failed to set Area: ${err.message}`);
                   }
+                } else {
+                  console.log(`Area option "Frontend" not found. Available: ${areaField.options.map(o => o.name).join(', ')}`);
                 }
               }
             }
