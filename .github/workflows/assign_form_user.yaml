@@ -11,14 +11,36 @@ jobs:
       issues: write
       projects: write
     steps:
+      - name: Debug PAT
+        env:
+          PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
+        run: |
+          if [ -z "$PROJECT_PAT" ]; then
+            echo "ERROR: PROJECT_PAT secret is empty or not set"
+            exit 1
+          fi
+          echo "PAT length: ${#PROJECT_PAT}"
+          echo "PAT prefix: ${PROJECT_PAT:0:4}..."
+
       - name: Add to Project and Set Fields
         uses: actions/github-script@v7
+        env:
+          PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
         with:
           script: |
             const issue = context.payload.issue;
             const body = issue.body || '';
             const owner = 'Data-Science-Club-TEC';
-            const client = github.graphql;
+
+            const pat = process.env.PROJECT_PAT;
+            if (!pat) {
+              core.setFailed('PROJECT_PAT secret is not set');
+              return;
+            }
+
+            const client = github.graphql.defaults({
+              headers: { authorization: `token ${pat}` }
+            });
 
             // Detect frontend template
             const isFrontend = body.includes('TODO (Summary)') && body.includes('Scope of Work');
