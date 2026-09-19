@@ -1,10 +1,22 @@
-# Frontend issue
 name: Frontend feature request
 description: Request a new feature in Frontend.
 title: "[FEATURE]: "
-labels: ["feature"]
+issue-type: feature
 projects: ["Data-Science-Club-TEC/1"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        # Summary
+  - type: input
+    id: summary_todo
+    attributes:
+      label: Summary (TODO)
+      description: Provide a 50 to 150 word synthesis on what to do.
+      placeholder: Write a concise synthesis of the feature request...
+    validations:
+      required: true
+
   - type: dropdown
     id: assignee_select
     attributes:
@@ -53,5 +65,19 @@ body:
         - Sprint 4
         - Sprint 5
         - Sprint 6
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Scope of Work
+
+  - type: textarea
+    id: scope_of_work
+    attributes:
+      label: Scope of Work
+      description: Detailed explanation of the feature and requirements.
+      placeholder: Provide full technical details, context, and user stories...
     validations:
       required: true
