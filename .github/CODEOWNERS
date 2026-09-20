@@ -4,27 +4,27 @@
 # Default: everything not matched below is owned by Datathon Webpage Team @ datathon-webpage
 # ---------------------------------------------------------------------------
 
-* @datathon-webpage/Frontend @datathon-webpage/Backend @datathon-webpage/Database @datathon-webpage/Security @committee
+* @Data-Science-Club-TEC/Frontend @Data-Science-Club-TEC/Backend @Data-Science-Club-TEC/Database @Data-Science-Club-TEC/Security @Data-Science-Club-TEC/committee
 
-/.github/ @committee
+/.github/ @Data-Science-Club-TEC/committee
 
 # ---------------------------------------------------------------------------
 # Main dev areas
 # ---------------------------------------------------------------------------
-/prisma/ @datathon-webpage/Database @datathon-webpage/Backend
-/datathon/src/lib/ @datathon-webpage/Backend
-/cron.json/ @datathon-webpage/Security 
+/prisma/ @Data-Science-Club-TEC/Database @Data-Science-Club-TEC/Backend
+/datathon/src/lib/ @Data-Science-Club-TEC/Backend
+/cron.json/ @Data-Science-Club-TEC/Security 
 
-/datathon/src/assets/      @datathon-webpage/Frontend
-/datathon/src/components/  @datathon-webpage/Frontend
-/datathon/src/pages/       @datathon-webpage/Frontend
-/datathon/src/App.tsx      @datathon-webpage/Frontend
-/datathon/src/index.tsx    @datathon-webpage/Frontend
-/datathon/src/App.css      @datathon-webpage/Frontend
-/datathon/src/main.tsx     @datathon-webpage/Frontend
+/datathon/src/assets/      @Data-Science-Club-TEC/Frontend
+/datathon/src/components/  @Data-Science-Club-TEC/Frontend
+/datathon/src/pages/       @Data-Science-Club-TEC/Frontend
+/datathon/src/App.tsx      @Data-Science-Club-TEC/Frontend
+/datathon/src/index.tsx    @Data-Science-Club-TEC/Frontend
+/datathon/src/App.css      @Data-Science-Club-TEC/Frontend
+/datathon/src/main.tsx     @Data-Science-Club-TEC/Frontend
 
 # ---------------------------------------------------------------------------
 # Security and privacy areas
 # ---------------------------------------------------------------------------
-/datathon/src/lib/auth/ @datathon-webpage/Security @datathon-webpage/
-/datathon/src/lib/crypto/ @datathon-webpage/Security @datathon-webpage/
+/datathon/src/lib/auth/ @Data-Science-Club-TEC/Security 
+/datathon/src/lib/crypto/ @Data-Science-Club-TEC/Security 
