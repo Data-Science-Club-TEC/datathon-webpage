@@ -1,4 +1,30 @@
-* @betsnb @TEC-Andres
+# CODEOWNERS - Data Science Club @Datathon Webpage
+#
+# ---------------------------------------------------------------------------
+# Default: everything not matched below is owned by Datathon Webpage Team @ datathon-webpage
+# ---------------------------------------------------------------------------
 
-# For more information, see the documentation:
-# https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
+* @Data-Science-Club-TEC/Frontend @Data-Science-Club-TEC/Backend @Data-Science-Club-TEC/Database @Data-Science-Club-TEC/Security @Data-Science-Club-TEC/committee
+
+/.github/ @Data-Science-Club-TEC/committee
+
+# ---------------------------------------------------------------------------
+# Main dev areas
+# ---------------------------------------------------------------------------
+/prisma/ @Data-Science-Club-TEC/Database @Data-Science-Club-TEC/Backend
+/datathon/src/lib/ @Data-Science-Club-TEC/Backend
+/cron.json/ @Data-Science-Club-TEC/Security 
+
+/datathon/src/assets/      @Data-Science-Club-TEC/Frontend
+/datathon/src/components/  @Data-Science-Club-TEC/Frontend
+/datathon/src/pages/       @Data-Science-Club-TEC/Frontend
+/datathon/src/App.tsx      @Data-Science-Club-TEC/Frontend
+/datathon/src/index.tsx    @Data-Science-Club-TEC/Frontend
+/datathon/src/App.css      @Data-Science-Club-TEC/Frontend
+/datathon/src/main.tsx     @Data-Science-Club-TEC/Frontend
+
+# ---------------------------------------------------------------------------
+# Security and privacy areas
+# ---------------------------------------------------------------------------
+/datathon/src/lib/auth/ @Data-Science-Club-TEC/Security 
+/datathon/src/lib/crypto/ @Data-Science-Club-TEC/Security 
