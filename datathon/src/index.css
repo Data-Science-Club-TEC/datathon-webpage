@@ -2,8 +2,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500&display=swap");
 
 @theme {
-  --color-navy: #132c71;
-  --color-navy-dark: #0f1a3d;
+  --color-navy: #091840;
+  --color-navy-dark: #040e29;
   --color-blue: #6da1ea;
   --color-lavender: #dad1fd;
   --color-light-blue: #6da1ea;
@@ -19,7 +19,7 @@
   }
 
   body {
-    @apply bg-white text-black;
+    @apply bg-navy-dark text-black;
   }
 
   h1,

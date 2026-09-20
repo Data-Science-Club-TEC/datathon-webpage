@@ -13,7 +13,7 @@
     box-shadow: 0 0 20px var(--color-blue);
   }
   .section-dark {
-    background-color: var(--color-navy);
+    background-color: var(--color-navy-dark);
   }
   .sponsor-card {
     background-color: var(--color-sponsor-card);

@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 
-const images = [1, 2, 3, 4, 5].map(
-  (n) => `https://picsum.photos/seed/datathon${n}/800/600`,
+const galleryModules = import.meta.glob<string>(
+  "../assets/gallery/*.{jpg,jpeg,png,webp}",
+  { eager: true, import: "default" },
 );
+
+const images = Object.keys(galleryModules)
+  .sort()
+  .map((path) => galleryModules[path]);
 
 export default function GalleryCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
