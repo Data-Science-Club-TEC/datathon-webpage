@@ -55,7 +55,7 @@ export default function GalleryCarousel() {
 
   return (
     <section className="section-dark px-6 md:px-20 py-16 md:py-20">
-      <h2 className="font-poppins font-bold text-4xl md:text-[48px] tracking-tight text-white text-glow mb-8">
+      <h2 className="font-poppins font-bold text-4xl md:text-[48px] text-center tracking-tight text-white text-glow mb-8">
         Galería
       </h2>
 
