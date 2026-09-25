@@ -2,7 +2,7 @@ name: Frontend feature request
 description: Request a new feature in Frontend.
 title: "[FEATURE] "
 type: feature
-projects: ["Data-Science-Club-TEC/1"]
+projects: ["[COPY] Data-Science-Club-TEC/1"]
 body:
   - type: textarea
     id: todo_summary
