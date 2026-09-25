@@ -4,11 +4,11 @@ title: "[FEATURE] "
 type: feature
 projects: ["TEC-Andres/3"]
 body:
-  - type: textarea
+  - type: input
     id: todo_summary
     attributes:
       label: TODO (Summary)
-      description: A 50 to 150 word synthesis on what needs to be done.
+      description: A 10 to 25 word synthesis on what needs to be done.
       placeholder: Write a concise synthesis of the task...
     validations:
       required: true
