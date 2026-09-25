@@ -236,6 +236,11 @@ jobs:
               }
             }
 
+  strip-target-sprint:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
       - name: Strip Target Sprint from Issue Body
         uses: actions/github-script@v7
         with:
@@ -243,17 +248,36 @@ jobs:
             const issue = context.payload.issue;
             const body = issue.body || '';
 
-            const cleaned = body.replace(
-              /###\s*Target Sprint\s*\r?\n[\s\S]*?(?=###\s|\z)/i,
-              ''
-            ).trim();
+            const lines = body.split(/\r?\n/);
+            const start = lines.findIndex(l => /^###\s*Target Sprint\s*$/i.test(l.trim()));
 
-            if (cleaned !== body.trim()) {
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: cleaned
-              });
-              console.log('Stripped Target Sprint section');
+            if (start === -1) {
+              console.log('No "### Target Sprint" section found - nothing to strip');
+              return;
             }
+
+            let end = start + 1;
+            while (end < lines.length && !/^###\s/.test(lines[end].trim())) {
+              end++;
+            }
+
+            const cleaned = [
+              ...lines.slice(0, start),
+              ...lines.slice(end)
+            ].join('\n')
+              .replace(/[ \t]+$/gm, '')
+              .replace(/\n{3,}/g, '\n\n')
+              .trim();
+
+            if (cleaned === body.trim()) {
+              console.log('Body unchanged after stripping - skipping update');
+              return;
+            }
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: cleaned
+            });
+            console.log(`Stripped Target Sprint section (lines ${start + 1}-${end})`);
