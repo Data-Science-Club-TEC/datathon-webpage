@@ -18,7 +18,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/15" />
 
       {/*fade*/}
-      <div className="absolute inset-x-0 bottom-0 h-20 md:h-30 bg-linear-to-b from-transparent via-navy/40 to-navy-dark pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-20 md:h-30 bg-linear-to-b from-transparent to-navy-dark pointer-events-none" />
 
       <Header />
 

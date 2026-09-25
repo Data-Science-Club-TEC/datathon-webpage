@@ -31,3 +31,30 @@
 .carousel-slide {
   scroll-snap-align: start;
 }
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+@keyframes pulse-bg {
+  0%,
+  100% {
+    background-color: var(--color-navy-dark);
+  }
+  50% {
+    background-color: var(--color-navy-bright);
+  }
+}
+
+.animate-pulse-bg {
+  animation: pulse-bg 6s ease-in-out infinite;
+}
