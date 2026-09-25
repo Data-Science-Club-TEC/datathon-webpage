@@ -158,6 +158,7 @@ jobs:
             }
 
             const projectId = project.id;
+            const fieldNames = allFields.filter(Boolean).map(f => f.name).join(', ');
 
             // Add issue to project
             let itemId;
@@ -178,20 +179,26 @@ jobs:
 
             // Set Sprint (iteration field)
             if (sprintValue) {
-              const sprintField = allFields.find(f => f.name === 'Sprint');
-              if (sprintField && sprintField.configuration) {
+              const sprintField = allFields.find(f => f && f.name === 'Sprint');
+              if (!sprintField) {
+                core.warning(`No "Sprint" field on project. Fields: ${fieldNames}`);
+              } else if (!sprintField.configuration) {
+                core.warning(`"Sprint" field is not an iteration field. Fields: ${fieldNames}`);
+              } else {
                 const iteration = sprintField.configuration.iterations.find(
                   i => i.title === sprintValue
                 );
-                if (iteration) {
+                if (!iteration) {
+                  core.warning(`Sprint iteration "${sprintValue}" not found. Available: ${sprintField.configuration.iterations.map(i => i.title).join(', ')}`);
+                } else {
                   try {
                     await gql(`
-                      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: ID!) {
+                      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
                         updateProjectV2ItemFieldValue(input: {
                           projectId: $projectId
                           itemId: $itemId
                           fieldId: $fieldId
-                          iterationId: $iterationId
+                          value: { iterationId: $iterationId }
                         }) {
                           projectV2Item { id }
                         }
@@ -199,28 +206,34 @@ jobs:
                     `, { projectId, itemId, fieldId: sprintField.id, iterationId: iteration.id });
                     console.log(`Set Sprint to: ${sprintValue}`);
                   } catch (err) {
-                    console.log(`Failed to set Sprint: ${err.message}`);
+                    core.warning(`Failed to set Sprint: ${err.message}`);
                   }
-                } else {
-                  console.log(`Sprint iteration "${sprintValue}" not found. Available: ${sprintField.configuration.iterations.map(i => i.title).join(', ')}`);
                 }
               }
+            } else {
+              core.warning('No Target Sprint value parsed from issue body - Sprint left unset');
             }
 
             // Set Area (single-select field) to Frontend if applicable
             if (isFrontend) {
-              const areaField = allFields.find(f => f.name === 'Area');
-              if (areaField) {
+              const areaField = allFields.find(f => f && f.name === 'Area');
+              if (!areaField) {
+                core.warning(`No "Area" field on project. Fields: ${fieldNames}`);
+              } else if (!areaField.options || areaField.options.length === 0) {
+                core.warning(`"Area" field has no options - add a "Frontend" option to the project's Area field. Fields: ${fieldNames}`);
+              } else {
                 const frontendOpt = areaField.options.find(o => o.name === 'Frontend');
-                if (frontendOpt) {
+                if (!frontendOpt) {
+                  core.warning(`Area option "Frontend" not found. Available: ${areaField.options.map(o => o.name).join(', ')}`);
+                } else {
                   try {
                     await gql(`
-                      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: ID!) {
+                      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
                         updateProjectV2ItemFieldValue(input: {
                           projectId: $projectId
                           itemId: $itemId
                           fieldId: $fieldId
-                          singleSelectOptionId: $optionId
+                          value: { singleSelectOptionId: $optionId }
                         }) {
                           projectV2Item { id }
                         }
@@ -228,10 +241,8 @@ jobs:
                     `, { projectId, itemId, fieldId: areaField.id, optionId: frontendOpt.id });
                     console.log('Set Area to: Frontend');
                   } catch (err) {
-                    console.log(`Failed to set Area: ${err.message}`);
+                    core.warning(`Failed to set Area: ${err.message}`);
                   }
-                } else {
-                  console.log(`Area option "Frontend" not found. Available: ${areaField.options.map(o => o.name).join(', ')}`);
                 }
               }
             }
