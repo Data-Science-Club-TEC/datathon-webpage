@@ -29,7 +29,8 @@ jobs:
           script: |
             const issue = context.payload.issue;
             const body = issue.body || '';
-            const owner = 'Data-Science-Club-TEC';
+            const owner = 'TEC-Andres';
+            const projectNumber = 3;
 
             const pat = process.env.PROJECT_PAT;
             if (!pat) {
@@ -66,55 +67,66 @@ jobs:
               }
             }
 
-            // Discover available projects
+            // Discover the target project. The owner may be a user account or an org,
+            // so try both, then fall back to whatever the token's own viewer can see.
+            const pickProject = (list) => list.find(p => p.number === projectNumber) || null;
+            const summarize = (list) => list.map(p => `${p.number}:${p.title}`).join(', ') || '(none)';
+
             let project = null;
+
             try {
               const orgRes = await gql(`
                 query($owner: String!) {
                   organization(login: $owner) {
-                    projectsV2(first: 10) {
-                      nodes {
-                        id
-                        number
-                        title
-                      }
-                    }
+                    projectsV2(first: 50) { nodes { id number title } }
                   }
                 }
               `, { owner });
-              const orgProjects = orgRes.organization.projectsV2.nodes;
-              console.log(`Found ${orgProjects.length} org projects: ${orgProjects.map(p => `${p.number}:${p.title}`).join(', ')}`);
-              project = orgProjects.find(p => p.number === 1) || orgProjects[0];
+              const list = orgRes.organization && orgRes.organization.projectsV2.nodes;
+              if (list) {
+                console.log(`Org projects: ${summarize(list)}`);
+                project = pickProject(list);
+              }
             } catch (err) {
               console.log(`Org query failed: ${err.message}`);
             }
 
-            // Fallback: try user projects
             if (!project) {
               try {
                 const userRes = await gql(`
-                  query {
-                    viewer {
-                      projectsV2(first: 10) {
-                        nodes {
-                          id
-                          number
-                          title
-                        }
-                      }
+                  query($owner: String!) {
+                    user(login: $owner) {
+                      projectsV2(first: 50) { nodes { id number title } }
                     }
                   }
-                `);
-                const userProjects = userRes.viewer.projectsV2.nodes;
-                console.log(`Found ${userProjects.length} user projects: ${userProjects.map(p => `${p.number}:${p.title}`).join(', ')}`);
-                project = userProjects.find(p => p.number === 1) || userProjects[0];
+                `, { owner });
+                const list = userRes.user && userRes.user.projectsV2.nodes;
+                if (list) {
+                  console.log(`User projects: ${summarize(list)}`);
+                  project = pickProject(list);
+                }
               } catch (err) {
                 console.log(`User query failed: ${err.message}`);
               }
             }
 
             if (!project) {
-              core.setFailed('No accessible projects found. Check PROJECT_PAT scopes (needs "project" scope) and org membership.');
+              try {
+                const viewerRes = await gql(`
+                  query {
+                    viewer { projectsV2(first: 50) { nodes { id number title } } }
+                  }
+                `);
+                const list = viewerRes.viewer.projectsV2.nodes;
+                console.log(`Viewer projects: ${summarize(list)}`);
+                project = pickProject(list);
+              } catch (err) {
+                console.log(`Viewer query failed: ${err.message}`);
+              }
+            }
+
+            if (!project) {
+              core.setFailed(`Project ${owner}/${projectNumber} not found. Check PROJECT_PAT scopes (needs "project" scope), that the project is shared with the token owner, and that owner/projectNumber at the top of this script match the form's "projects:" key.`);
               return;
             }
 
@@ -143,6 +155,8 @@ jobs:
                               iterations {
                                 id
                                 title
+                                startDate
+                                duration
                               }
                             }
                           }
@@ -178,85 +192,122 @@ jobs:
               return;
             }
 
-            // Set Sprint (iteration field)
-            if (sprintValue) {
-              const sprintField = allFields.find(f => f && f.name === 'Sprint');
-              if (!sprintField) {
-                core.warning(`No "Sprint" field on project. Fields: ${fieldNames}`);
-              } else if (!sprintField.configuration) {
-                core.warning(`"Sprint" field is not an iteration field. Fields: ${fieldNames}`);
-              } else {
-                const iteration = sprintField.configuration.iterations.find(
-                  i => i.title === sprintValue
-                );
-                if (!iteration) {
-                  core.warning(`Sprint iteration "${sprintValue}" not found. Available: ${sprintField.configuration.iterations.map(i => i.title).join(', ')}`);
-                } else {
-                  console.log(`Sprint match: itemId=${itemId} fieldId=${sprintField.id} iteration=${JSON.stringify(iteration)} iterations=${JSON.stringify(sprintField.configuration.iterations)}`);
-                  try {
-                    const upd = await gql(`
-                      mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
-                        updateProjectV2ItemFieldValue(input: {
-                          projectId: $projectId
-                          itemId: $itemId
-                          fieldId: $fieldId
-                          value: { iterationId: $iterationId }
-                        }) {
-                          projectV2Item { id }
-                        }
-                      }
-                    `, { projectId, itemId, fieldId: sprintField.id, iterationId: iteration.id });
-                    console.log(`Mutation ok, item=${upd.updateProjectV2ItemFieldValue.projectV2Item.id}`);
+            // Set Sprint (iteration field).
+            // Priority: explicit form answer > the project's current iteration > next upcoming iteration.
+            const sprintField = allFields.find(f => f && f.name === 'Sprint');
 
-                    const check = await gql(`
-                      query($projectId: ID!, $itemId: ID!) {
-                        node(id: $projectId) {
-                          __typename
-                          ... on ProjectV2 {
-                            number
-                            title
-                            items(first: 100) {
-                              totalCount
-                              nodes {
-                                id
-                                content { __typename ... on Issue { number } ... on PullRequest { number } }
-                                fieldValueByName(name: "Sprint") {
-                                  __typename
-                                  ... on ProjectV2ItemFieldIterationValue { title iterationId }
-                                }
+            const toTime = (d) => {
+              if (!d) return NaN;
+              return Date.parse(d.length === 10 ? `${d}T00:00:00Z` : d);
+            };
+
+            const pickCurrentIteration = (list) => {
+              const now = Date.now();
+              const day = 24 * 60 * 60 * 1000;
+              const active = list.find(it => {
+                const start = toTime(it && it.startDate);
+                if (Number.isNaN(start)) return false;
+                const end = start + ((it && it.duration) || 7) * day;
+                return now >= start && now < end;
+              });
+              if (active) return { iteration: active, reason: 'active' };
+              const upcoming = list.find(it => {
+                const start = toTime(it && it.startDate);
+                return !Number.isNaN(start) && start > now;
+              });
+              if (upcoming) return { iteration: upcoming, reason: 'next-upcoming' };
+              return null;
+            };
+
+            if (!sprintField) {
+              core.warning(`No "Sprint" field on project. Fields: ${fieldNames}`);
+            } else if (!sprintField.configuration) {
+              core.warning(`"Sprint" field is not an iteration field. Fields: ${fieldNames}`);
+            } else {
+              const iterations = sprintField.configuration.iterations || [];
+              let iteration = null;
+              let source = 'form';
+
+              if (sprintValue) {
+                iteration = iterations.find(i => i.title === sprintValue);
+                if (!iteration) {
+                  core.warning(`Sprint iteration "${sprintValue}" not found in project config. Available: ${iterations.map(i => i.title).join(', ')}`);
+                }
+              }
+
+              if (!iteration) {
+                const auto = pickCurrentIteration(iterations);
+                if (auto) {
+                  iteration = auto.iteration;
+                  source = sprintValue ? `fallback:${auto.reason}` : `auto:${auto.reason}`;
+                }
+              }
+
+              if (!iteration) {
+                core.warning(`No usable sprint iteration. Form value=${JSON.stringify(sprintValue)}, available=${JSON.stringify(iterations.map(i => `${i.title}(${i.startDate}/${i.duration}d)`))}`);
+              } else {
+                console.log(`Sprint target: "${iteration.title}" (source=${source}, formValue=${JSON.stringify(sprintValue)}, startDate=${iteration.startDate}, duration=${iteration.duration})`);
+                try {
+                  const upd = await gql(`
+                    mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
+                      updateProjectV2ItemFieldValue(input: {
+                        projectId: $projectId
+                        itemId: $itemId
+                        fieldId: $fieldId
+                        value: { iterationId: $iterationId }
+                      }) {
+                        projectV2Item { id }
+                      }
+                    }
+                  `, { projectId, itemId, fieldId: sprintField.id, iterationId: iteration.id });
+                  console.log(`Mutation ok, item=${upd.updateProjectV2ItemFieldValue.projectV2Item.id}`);
+
+                  const check = await gql(`
+                    query($projectId: ID!, $itemId: ID!) {
+                      node(id: $projectId) {
+                        __typename
+                        ... on ProjectV2 {
+                          number
+                          title
+                          items(first: 100) {
+                            totalCount
+                            nodes {
+                              id
+                              content { __typename ... on Issue { number } ... on PullRequest { number } }
+                              fieldValueByName(name: "Sprint") {
+                                __typename
+                                ... on ProjectV2ItemFieldIterationValue { title iterationId }
                               }
                             }
                           }
                         }
-                        mine: node(id: $itemId) {
-                          __typename
-                          ... on ProjectV2Item {
-                            fieldValueByName(name: "Sprint") {
-                              __typename
-                              ... on ProjectV2ItemFieldIterationValue { title iterationId }
-                            }
+                      }
+                      mine: node(id: $itemId) {
+                        __typename
+                        ... on ProjectV2Item {
+                          fieldValueByName(name: "Sprint") {
+                            __typename
+                            ... on ProjectV2ItemFieldIterationValue { title iterationId }
                           }
                         }
                       }
-                    `, { projectId, itemId });
-                    const conn = check.node.items;
-                    const all = conn.nodes;
-                    const mine = check.mine;
-                    console.log(`Read-back via itemId=${itemId} => ${JSON.stringify(mine)}`);
-                    if (mine && mine.fieldValueByName && mine.fieldValueByName.iterationId === iteration.id) {
-                      console.log(`Set Sprint to: ${sprintValue}`);
-                    } else {
-                      core.warning(`Sprint write did NOT persist (expected ${iteration.id}), got ${JSON.stringify(mine)}`);
-                      console.log(`Project #${check.node.number} "${check.node.title}" items.totalCount=${conn.totalCount}`);
-                      console.log(`Inventory: ${JSON.stringify(all.map(n => ({ id: n.id, content: n.content, sprint: n.fieldValueByName })))}`);
                     }
-                  } catch (err) {
-                    core.warning(`Failed to set Sprint: ${err.message}`);
+                  `, { projectId, itemId });
+                  const conn = check.node.items;
+                  const all = conn.nodes;
+                  const mine = check.mine;
+                  console.log(`Read-back via itemId=${itemId} => ${JSON.stringify(mine)}`);
+                  if (mine && mine.fieldValueByName && mine.fieldValueByName.iterationId === iteration.id) {
+                    console.log(`Set Sprint to: ${iteration.title} (source=${source})`);
+                  } else {
+                    core.warning(`Sprint write did NOT persist (expected ${iteration.id}), got ${JSON.stringify(mine)}`);
+                    console.log(`Project #${check.node.number} "${check.node.title}" items.totalCount=${conn.totalCount}`);
+                    console.log(`Inventory: ${JSON.stringify(all.map(n => ({ id: n.id, content: n.content, sprint: n.fieldValueByName })))}`);
                   }
+                } catch (err) {
+                  core.warning(`Failed to set Sprint: ${err.message}`);
                 }
               }
-            } else {
-              core.warning('No Target Sprint value parsed from issue body - Sprint left unset');
             }
 
             // Set Area (single-select field) to Frontend if applicable
