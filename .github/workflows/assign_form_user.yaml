@@ -130,6 +130,7 @@ jobs:
                       id
                       fields(first: 50) {
                         nodes {
+                          __typename
                           ... on ProjectV2SingleSelectField {
                             id
                             name
@@ -158,7 +159,7 @@ jobs:
             }
 
             const projectId = project.id;
-            const fieldNames = allFields.filter(Boolean).map(f => f.name).join(', ');
+            const fieldNames = allFields.filter(Boolean).map(f => `${f.__typename}(${f.name === undefined ? 'no-name' : f.name})`).join(', ');
 
             // Add issue to project
             let itemId;
@@ -210,11 +211,15 @@ jobs:
                     const check = await gql(`
                       query($projectId: ID!, $itemId: ID!) {
                         node(id: $projectId) {
+                          __typename
                           ... on ProjectV2 {
+                            number
+                            title
                             items(first: 100) {
+                              totalCount
                               nodes {
                                 id
-                                content { ... on Issue { number } }
+                                content { __typename ... on Issue { number } ... on PullRequest { number } }
                                 fieldValueByName(name: "Sprint") {
                                   __typename
                                   ... on ProjectV2ItemFieldIterationValue { title iterationId }
@@ -224,6 +229,7 @@ jobs:
                           }
                         }
                         mine: node(id: $itemId) {
+                          __typename
                           ... on ProjectV2Item {
                             fieldValueByName(name: "Sprint") {
                               __typename
@@ -233,10 +239,12 @@ jobs:
                         }
                       }
                     `, { projectId, itemId });
-                    const all = check.node.items.nodes;
+                    const conn = check.node.items;
+                    const all = conn.nodes;
                     const mine = check.mine;
-                    console.log(`Project items for issue #${issue.number}: ${JSON.stringify(all.filter(n => n.content && n.content.number === issue.number))}`);
-                    console.log(`Read-back via itemId => ${JSON.stringify(mine)}`);
+                    console.log(`Project #${check.node.number} "${check.node.title}" items.totalCount=${conn.totalCount} returned=${all.length}`);
+                    console.log(`All items: ${JSON.stringify(all.map(n => ({ id: n.id, content: n.content, sprint: n.fieldValueByName })))}`);
+                    console.log(`Read-back via itemId=${itemId} => ${JSON.stringify(mine)}`);
                     if (mine && mine.fieldValueByName && mine.fieldValueByName.iterationId === iteration.id) {
                       console.log(`Set Sprint to: ${sprintValue}`);
                     } else {
