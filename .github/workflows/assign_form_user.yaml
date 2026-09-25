@@ -191,7 +191,7 @@ jobs:
                 if (!iteration) {
                   core.warning(`Sprint iteration "${sprintValue}" not found. Available: ${sprintField.configuration.iterations.map(i => i.title).join(', ')}`);
                 } else {
-                  console.log(`Sprint match: itemId=${itemId} fieldId=${sprintField.id} iterationId=${iteration.id} title="${iteration.title}"`);
+                  console.log(`Sprint match: itemId=${itemId} fieldId=${sprintField.id} iteration=${JSON.stringify(iteration)} iterations=${JSON.stringify(sprintField.configuration.iterations)}`);
                   try {
                     const upd = await gql(`
                       mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
@@ -208,7 +208,7 @@ jobs:
                     console.log(`Mutation ok, item=${upd.updateProjectV2ItemFieldValue.projectV2Item.id}`);
 
                     const check = await gql(`
-                      query($projectId: ID!, $itemId: ID!, $issueNumber: Int!) {
+                      query($projectId: ID!, $itemId: ID!) {
                         node(id: $projectId) {
                           ... on ProjectV2 {
                             items(first: 100) {
@@ -216,7 +216,8 @@ jobs:
                                 id
                                 content { ... on Issue { number } }
                                 fieldValueByName(name: "Sprint") {
-                                  ... on ProjectV2ItemIterationFieldValue { title iterationId }
+                                  __typename
+                                  ... on ProjectV2ItemFieldIterationValue { title iterationId }
                                 }
                               }
                             }
@@ -225,12 +226,13 @@ jobs:
                         mine: node(id: $itemId) {
                           ... on ProjectV2Item {
                             fieldValueByName(name: "Sprint") {
-                              ... on ProjectV2ItemIterationFieldValue { title iterationId }
+                              __typename
+                              ... on ProjectV2ItemFieldIterationValue { title iterationId }
                             }
                           }
                         }
                       }
-                    `, { projectId, itemId, issueNumber: issue.number });
+                    `, { projectId, itemId });
                     const all = check.node.items.nodes;
                     const mine = check.mine;
                     console.log(`Project items for issue #${issue.number}: ${JSON.stringify(all.filter(n => n.content && n.content.number === issue.number))}`);
