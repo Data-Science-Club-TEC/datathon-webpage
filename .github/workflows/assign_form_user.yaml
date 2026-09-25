@@ -242,13 +242,13 @@ jobs:
                     const conn = check.node.items;
                     const all = conn.nodes;
                     const mine = check.mine;
-                    console.log(`Project #${check.node.number} "${check.node.title}" items.totalCount=${conn.totalCount} returned=${all.length}`);
-                    console.log(`All items: ${JSON.stringify(all.map(n => ({ id: n.id, content: n.content, sprint: n.fieldValueByName })))}`);
                     console.log(`Read-back via itemId=${itemId} => ${JSON.stringify(mine)}`);
                     if (mine && mine.fieldValueByName && mine.fieldValueByName.iterationId === iteration.id) {
                       console.log(`Set Sprint to: ${sprintValue}`);
                     } else {
                       core.warning(`Sprint write did NOT persist (expected ${iteration.id}), got ${JSON.stringify(mine)}`);
+                      console.log(`Project #${check.node.number} "${check.node.title}" items.totalCount=${conn.totalCount}`);
+                      console.log(`Inventory: ${JSON.stringify(all.map(n => ({ id: n.id, content: n.content, sprint: n.fieldValueByName })))}`);
                     }
                   } catch (err) {
                     core.warning(`Failed to set Sprint: ${err.message}`);
