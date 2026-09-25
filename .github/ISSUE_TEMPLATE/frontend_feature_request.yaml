@@ -4,11 +4,11 @@ title: "[FEATURE] "
 type: feature
 projects: ["Data-Science-Club-TEC/1"]
 body:
-  - type: textarea
+  - type: input
     id: todo_summary
     attributes:
       label: TODO (Summary)
-      description: A 50 to 150 word synthesis on what needs to be done.
+      description: A 15 to 25 word synthesis on what needs to be done.
       placeholder: Write a concise synthesis of the task...
     validations:
       required: true

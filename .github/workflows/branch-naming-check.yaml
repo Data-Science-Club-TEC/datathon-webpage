@@ -19,7 +19,7 @@ jobs:
           
           # Allowed patterns
           # from /.githooks/post-checkout/
-          REGEX="^(feature|bugfix|enhancement|hotfix|docs|structure|assets|tests|experiment|release)/.+"
+          REGEX="^(feature|bugfix|enhancement|hotfix|docs|structure|assets|tests|experiment|release|ci-cd)/.+"
           
           echo "Verifying branch: $BRANCH_NAME"
           
