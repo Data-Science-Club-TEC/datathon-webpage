@@ -191,8 +191,9 @@ jobs:
                 if (!iteration) {
                   core.warning(`Sprint iteration "${sprintValue}" not found. Available: ${sprintField.configuration.iterations.map(i => i.title).join(', ')}`);
                 } else {
+                  console.log(`Sprint match: itemId=${itemId} fieldId=${sprintField.id} iterationId=${iteration.id} title="${iteration.title}"`);
                   try {
-                    await gql(`
+                    const upd = await gql(`
                       mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
                         updateProjectV2ItemFieldValue(input: {
                           projectId: $projectId
@@ -204,7 +205,41 @@ jobs:
                         }
                       }
                     `, { projectId, itemId, fieldId: sprintField.id, iterationId: iteration.id });
-                    console.log(`Set Sprint to: ${sprintValue}`);
+                    console.log(`Mutation ok, item=${upd.updateProjectV2ItemFieldValue.projectV2Item.id}`);
+
+                    const check = await gql(`
+                      query($projectId: ID!, $itemId: ID!, $issueNumber: Int!) {
+                        node(id: $projectId) {
+                          ... on ProjectV2 {
+                            items(first: 100) {
+                              nodes {
+                                id
+                                content { ... on Issue { number } }
+                                fieldValueByName(name: "Sprint") {
+                                  ... on ProjectV2ItemIterationFieldValue { title iterationId }
+                                }
+                              }
+                            }
+                          }
+                        }
+                        mine: node(id: $itemId) {
+                          ... on ProjectV2Item {
+                            fieldValueByName(name: "Sprint") {
+                              ... on ProjectV2ItemIterationFieldValue { title iterationId }
+                            }
+                          }
+                        }
+                      }
+                    `, { projectId, itemId, issueNumber: issue.number });
+                    const all = check.node.items.nodes;
+                    const mine = check.mine;
+                    console.log(`Project items for issue #${issue.number}: ${JSON.stringify(all.filter(n => n.content && n.content.number === issue.number))}`);
+                    console.log(`Read-back via itemId => ${JSON.stringify(mine)}`);
+                    if (mine && mine.fieldValueByName && mine.fieldValueByName.iterationId === iteration.id) {
+                      console.log(`Set Sprint to: ${sprintValue}`);
+                    } else {
+                      core.warning(`Sprint write did NOT persist (expected ${iteration.id}), got ${JSON.stringify(mine)}`);
+                    }
                   } catch (err) {
                     core.warning(`Failed to set Sprint: ${err.message}`);
                   }
