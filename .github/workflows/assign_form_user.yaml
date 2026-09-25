@@ -25,12 +25,13 @@ jobs:
         uses: actions/github-script@v7
         env:
           PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
+          PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER }}
         with:
           script: |
             const issue = context.payload.issue;
             const body = issue.body || '';
-            const owner = 'TEC-Andres';
-            const projectNumber = 3;
+            const owner = context.repo.owner;
+            const configuredNumber = parseInt(process.env.PROJECT_NUMBER || '', 10);
 
             const pat = process.env.PROJECT_PAT;
             if (!pat) {
@@ -69,7 +70,14 @@ jobs:
 
             // Discover the target project. The owner may be a user account or an org,
             // so try both, then fall back to whatever the token's own viewer can see.
-            const pickProject = (list) => list.find(p => p.number === projectNumber) || null;
+            const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            const pickProject = (list) => {
+              if (Number.isInteger(configuredNumber)) {
+                return list.find(p => p.number === configuredNumber) || null;
+              }
+              const byTitle = list.find(p => slug(p.title) === slug(context.repo.repo));
+              return byTitle || (list.length === 1 ? list[0] : null);
+            };
             const summarize = (list) => list.map(p => `${p.number}:${p.title}`).join(', ') || '(none)';
 
             let project = null;
@@ -126,7 +134,7 @@ jobs:
             }
 
             if (!project) {
-              core.setFailed(`Project ${owner}/${projectNumber} not found. Check PROJECT_PAT scopes (needs "project" scope), that the project is shared with the token owner, and that owner/projectNumber at the top of this script match the form's "projects:" key.`);
+              core.setFailed(`Project ${owner}${Number.isInteger(configuredNumber) ? '/' + configuredNumber : ''} not found. Check PROJECT_PAT scopes (needs "project" scope), that the project is shared with the token owner, or set the PROJECT_NUMBER repository variable. Projects seen: check the logs above.`);
               return;
             }
 
