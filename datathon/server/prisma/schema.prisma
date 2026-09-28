@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id              BigInt   @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   name            String
   lastName        String   @map("last_name")
   username        String   @unique
@@ -19,8 +19,10 @@ model User {
   profileImg      String?  @map("profile_img")
   githubUrl       String?  @map("github_url")
   linkedinUrl     String?  @map("linkedin_url")
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
+  @@index([githubUrl], map: "idx_users_github_url")
+  @@index([linkedinUrl], map: "idx_users_linkedin_url")
   @@map("users")
   @@schema("public")
 }
