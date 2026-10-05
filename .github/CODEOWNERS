@@ -12,19 +12,19 @@
 # Main dev areas
 # ---------------------------------------------------------------------------
 /prisma/ @Data-Science-Club-TEC/Database @Data-Science-Club-TEC/Backend
-/datathon/src/lib/ @Data-Science-Club-TEC/Backend
+/src/lib/ @Data-Science-Club-TEC/Backend
 /cron.json/ @Data-Science-Club-TEC/Security 
 
-/datathon/src/assets/      @Data-Science-Club-TEC/Frontend
-/datathon/src/components/  @Data-Science-Club-TEC/Frontend
-/datathon/src/pages/       @Data-Science-Club-TEC/Frontend
-/datathon/src/App.tsx      @Data-Science-Club-TEC/Frontend
-/datathon/src/index.tsx    @Data-Science-Club-TEC/Frontend
-/datathon/src/App.css      @Data-Science-Club-TEC/Frontend
-/datathon/src/main.tsx     @Data-Science-Club-TEC/Frontend
+/src/assets/      @Data-Science-Club-TEC/Frontend
+/src/components/  @Data-Science-Club-TEC/Frontend
+/src/pages/       @Data-Science-Club-TEC/Frontend
+/src/App.tsx      @Data-Science-Club-TEC/Frontend
+/src/index.tsx    @Data-Science-Club-TEC/Frontend
+/src/App.css      @Data-Science-Club-TEC/Frontend
+/src/main.tsx     @Data-Science-Club-TEC/Frontend
 
 # ---------------------------------------------------------------------------
 # Security and privacy areas
 # ---------------------------------------------------------------------------
-/datathon/src/lib/auth/ @Data-Science-Club-TEC/Security 
-/datathon/src/lib/crypto/ @Data-Science-Club-TEC/Security 
+/src/lib/auth/ @Data-Science-Club-TEC/Security 
+/src/lib/crypto/ @Data-Science-Club-TEC/Security 
