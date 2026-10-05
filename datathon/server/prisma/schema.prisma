@@ -7,24 +7,33 @@ datasource db {
   schemas  = ["public", "auth"]
 }
 
+enum Gender {
+  male
+  female
+  non_binary
+  prefer_not_to_say
+  other
+
+  @@schema("public")
+}
+
 model User {
   id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   authUserId          String?              @unique @map("auth_user_id") @db.Uuid
-  name                String
-  lastName            String               @map("last_name")
+  name                String               @db.VarChar(100)
+  lastName            String               @map("last_name") @db.VarChar(100)
   username            String               @unique @db.VarChar(32)
   email               String               @unique @db.VarChar(320)
-  gender              String               @db.VarChar(10)
+  gender              Gender
   profileImg          String?              @map("profile_img")
   githubUrl           String?              @map("github_url")
   linkedinUrl         String?              @map("linkedin_url")
   createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt           DateTime             @updatedAt @map("updated_at") @db.Timestamp(6)
   academicInformation AcademicInformation?
   teamMemberships     TeamMember[]
   ledTeams            Team[]               @relation("TeamLeader")
 
-  @@index([githubUrl], map: "idx_users_github_url")
-  @@index([linkedinUrl], map: "idx_users_linkedin_url")
   @@map("users")
   @@schema("public")
 }
@@ -32,8 +41,8 @@ model User {
 model AcademicProgram {
   id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   code                String                @db.VarChar(20)
-  name                String
-  institution         String
+  name                String                @db.VarChar(150)
+  institution         String                @db.VarChar(150)
   isActive            Boolean               @default(true) @map("is_active")
   createdAt           DateTime              @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime              @updatedAt @map("updated_at") @db.Timestamp(6)
@@ -46,8 +55,8 @@ model AcademicProgram {
 
 model School {
   id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name                String                @unique
-  shortName           String?               @unique @map("short_name")
+  name                String                @unique @db.VarChar(150)
+  shortName           String?               @unique @map("short_name") @db.VarChar(50)
   isActive            Boolean               @default(true) @map("is_active")
   createdAt           DateTime              @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt           DateTime              @updatedAt @map("updated_at") @db.Timestamp(6)
@@ -69,14 +78,13 @@ enum AcademicLevel {
 }
 
 model AcademicInformation {
-  id                     String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId                 String           @unique @map("user_id") @db.Uuid
+  userId                 String           @id @map("user_id") @db.Uuid
   programId              String?          @map("program_id") @db.Uuid
   programOther           String?          @map("program_other") @db.VarChar(150)
   academicLevel          AcademicLevel    @map("academic_level")
   expectedGraduationDate DateTime?        @map("expected_graduation_date") @db.Date
   schoolId               String?          @map("school_id") @db.Uuid
-  schoolOther            String?          @map("school_other")
+  schoolOther            String?          @map("school_other") @db.VarChar(150)
   createdAt              DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt              DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
   user                   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -101,23 +109,14 @@ model Team {
   @@schema("public")
 }
 
-enum TeamMemberRole {
-  leader
-  member
-
-  @@schema("public")
-}
-
 model TeamMember {
-  teamId   String         @map("team_id") @db.Uuid
-  userId   String         @map("user_id") @db.Uuid
-  role     TeamMemberRole
-  joinedAt DateTime       @default(now()) @map("joined_at") @db.Timestamp(6)
-  team     Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId   String   @map("team_id") @db.Uuid
+  userId   String   @unique @map("user_id") @db.Uuid
+  joinedAt DateTime @default(now()) @map("joined_at") @db.Timestamp(6)
+  team     Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([teamId, userId])
-  @@unique([userId])
   @@map("team_members")
   @@schema("public")
 }
