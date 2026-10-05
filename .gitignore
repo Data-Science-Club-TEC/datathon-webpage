@@ -31,9 +31,6 @@ dist-ssr
 !.env.example
 SUPABASE_SETUP.md
 
-package-lock.json
-!server/package-lock.json
-
 server/.agents/
 server/.claude/
 server/.cursor/
