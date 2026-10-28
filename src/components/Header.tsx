@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router";
 import logo from "../assets/logo-notext.svg";
+import { registrationHref } from "../data/datathon.ts";
 
 const navLinks = [
   { label: "Inicio", to: "/" },
@@ -9,124 +10,90 @@ const navLinks = [
   { label: "FAQ", to: "/faq" },
 ];
 
-// Contacto no es una pagina: baja al footer (id="contacto") de la pagina actual
-const contactHref = "#contacto";
+const linkClass = "transition-colors hover:text-sky";
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `${linkClass} ${isActive ? "text-sky" : ""}`;
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-20 w-full h-22 lg:[1024px]">
-      <div className="h-[100px] lg:h-[96px] flex items-center justify-between px-6 lg:px-[60px]">
-        {/*Logo*/}
+    <header className="fixed top-0 inset-x-0 z-20 bg-navy-dark/60 backdrop-blur-md border-b border-white/5">
+      <nav className="h-16 lg:h-20 max-w-7xl mx-auto flex items-center justify-between gap-6 px-6 lg:px-10">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img
-            src={logo}
-            alt="Datathon logo"
-            className="h-6 lg:h-8 w-auto drop-shadow-lg/45 shrink-0"
-          />
-          <div className="font-poppins font-semibold text-xl lg:text-[28px] tracking-tighter leading-none whitespace-nowrap drop-shadow-lg/100">
+          <img src={logo} alt="" className="h-6 lg:h-8 w-auto" />
+          <span className="font-brand font-semibold text-xl lg:text-[26px] tracking-tighter leading-none">
             <span className="text-blue">data</span>
             <span className="text-lavender">thon</span>
-          </div>
+          </span>
         </Link>
 
-        <div className="hidden lg:flex items-center gap-8 font-poppins font-regular text-[16px] text-white backdrop-blur-sm bg-[rgba(196,196,196,0.09)] rounded-full px-8 py-3 shadow-lg/25">
+        <div className="hidden lg:flex items-center gap-8 font-display font-medium text-white">
           {navLinks.map((link) => (
-            <NavLink
-              key={link.label}
-              to={link.to}
-              end
-              className={({ isActive }) =>
-                `hover:text-[#9fbfed] transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 whitespace-nowrap ${
-                  isActive ? "text-[#9fbfed]" : ""
-                }`
-              }
-            >
+            <NavLink key={link.to} to={link.to} end className={navLinkClass}>
               {link.label}
             </NavLink>
           ))}
-          <a
-            href={contactHref}
-            className="hover:text-[#9fbfed] transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 whitespace-nowrap"
-          >
+          {/*Contacto no es una pagina: baja al footer de la pagina actual*/}
+          <a href="#contacto" className={linkClass}>
             Contacto
           </a>
         </div>
 
-        {/*CTA desktop: apuntara a /inscripcion cuando exista la pagina*/}
-        <a
-          href="#"
-          className="btn-glow hidden lg:flex items-center justify-center shrink-0 bg-[rgba(255,255,255,0.2)] backdrop-blur-sm border-2 border-[rgba(255,255,255,0.41)] rounded-4xl px-6 py-3 font-poppins font-semibold text-[16px] text-white transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 hover:text-[#9fbfed]"
-        >
-          Inscripción
-        </a>
-
-        {/*Mobile nav button*/}
-        <button
-          onClick={() => setIsOpen((prev) => !prev)}
-          aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={isOpen}
-          className="cursor-pointer lg:hidden relative w-8 h-8 shrink-0 flex items-center justify-center"
-        >
-          <span
-            className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-all duration-300 ${
-              isOpen ? "rotate-45" : "-translate-y-2"
-            }`}
-          />
-          <span
-            className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-opacity duration-200 ${
-              isOpen ? "opacity-0" : "opacity-100"
-            }`}
-          />
-          <span
-            className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-all duration-300 ${
-              isOpen ? "-rotate-45" : "translate-y-2"
-            }`}
-          />
-        </button>
-      </div>
-
-      {/*Mobile nav menu*/}
-      <div
-        className={`lg:hidden absolute right-4 top-[68px] z-20 w-52 origin-top-right rounded-[28px] bg-navy/85 border-2 border-white/10 shadow-2xl transition-all duration-300 ease-in-out ${
-          isOpen
-            ? "scale-100 opacity-100 translate-y-0"
-            : "scale-95 opacity-0 -translate-y-2 pointer-events-none"
-        }`}
-      >
-        <div className="flex flex-col items-center gap-7 px-6 py-9 font-poppins font-regular text-[17px] text-white">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.label}
-              to={link.to}
-              end
-              onClick={() => setIsOpen(false)}
-              className={({ isActive }) =>
-                `hover:text-[#9fbfed] transition-colors ${
-                  isActive ? "text-[#9fbfed]" : ""
-                }`
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
+        <div className="flex items-center gap-3">
           <a
-            href={contactHref}
-            onClick={() => setIsOpen(false)}
-            className="hover:text-[#9fbfed] transition-colors"
-          >
-            Contacto
-          </a>
-          <a
-            href="#"
-            onClick={() => setIsOpen(false)}
-            className="hover:text-[#9fbfed] transition-colors"
+            href={registrationHref}
+            className="btn btn-primary px-4 py-2 lg:px-5 text-xs! lg:text-sm!"
           >
             Inscripción
           </a>
+
+          <button
+            onClick={() => setIsOpen((prev) => !prev)}
+            aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
+            className="cursor-pointer lg:hidden relative w-10 h-10 flex items-center justify-center"
+          >
+            <span
+              className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-transform duration-300 ${isOpen ? "rotate-45" : "-translate-y-2"}`}
+            />
+            <span
+              className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-opacity ${isOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-transform duration-300 ${isOpen ? "-rotate-45" : "translate-y-2"}`}
+            />
+          </button>
+        </div>
+      </nav>
+
+      {/*Mobile nav menu: ocupa todo el ancho para targets tactiles grandes*/}
+      <div
+        id="mobile-menu"
+        hidden={!isOpen}
+        className="lg:hidden border-t border-white/5 bg-navy-dark/95"
+      >
+        {/*Cualquier click en un link cierra el menu*/}
+        <div
+          onClick={() => setIsOpen(false)}
+          className="flex flex-col px-6 py-2 font-display font-medium text-lg text-white"
+        >
+          {navLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end
+              className={(s) => `py-3 ${navLinkClass(s)}`}
+            >
+              {link.label}
+            </NavLink>
+          ))}
+          <a href="#contacto" className={`py-3 ${linkClass}`}>
+            Contacto
+          </a>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }

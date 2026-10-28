@@ -1,127 +1,66 @@
-import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { Link } from "react-router";
+import { useEffect, useState } from "react";
+import ButtonLink from "./ButtonLink.tsx";
+import Orb from "./Orb.tsx";
 import { edition } from "../data/datathon.ts";
 
-{
-  /*D-Day: misma fecha que la pagina /datathon*/
-}
+// D-Day: misma fecha que la pagina /datathon
 const TARGET_DATE = new Date(edition.startsAt);
 
 function getTimeLeft() {
   const diff = Math.max(TARGET_DATE.getTime() - Date.now(), 0);
-  return {
-    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((diff / (1000 * 60)) % 60),
-    seconds: Math.floor((diff / 1000) % 60),
-  };
+  return [
+    { label: "Días", value: Math.floor(diff / 86_400_000) },
+    { label: "Horas", value: Math.floor(diff / 3_600_000) % 24 },
+    { label: "Min", value: Math.floor(diff / 60_000) % 60 },
+    { label: "Seg", value: Math.floor(diff / 1000) % 60 },
+  ];
 }
-
-const pad = (n: number) => n.toString().padStart(2, "0");
 
 export default function CTA() {
   const [timeLeft, setTimeLeft] = useState(getTimeLeft);
-  const [meshPos, setMeshPos] = useState({ x: 50, y: 40 });
-  const [btnOffset, setBtnOffset] = useState({ x: 0, y: 0 });
-
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const id = setInterval(() => setTimeLeft(getTimeLeft()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  {
-    /*Background mesh*/
-  }
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const rect = section.getBoundingClientRect();
-    setMeshPos({
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    });
-
-    const btn = buttonRef.current;
-    if (!btn) return;
-
-    const btnRect = btn.getBoundingClientRect();
-    const btnCenterX = btnRect.left + btnRect.width / 2;
-    const btnCenterY = btnRect.top + btnRect.height / 2;
-    const dx = e.clientX - btnCenterX;
-    const dy = e.clientY - btnCenterY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const radius = 200;
-
-    if (distance < radius) {
-      const strength = 1 - distance / radius;
-      setBtnOffset({ x: dx * strength * 0.35, y: dy * strength * 0.35 });
-    } else {
-      setBtnOffset({ x: 0, y: 0 });
-    }
-  };
-
-  const handleMouseLeave = () => setBtnOffset({ x: 0, y: 0 });
-
-  const countdownItems = [
-    { label: "Días", value: timeLeft.days },
-    { label: "Horas", value: timeLeft.hours },
-    { label: "Min", value: timeLeft.minutes },
-    { label: "Seg", value: timeLeft.seconds },
-  ];
-
   return (
-    <section
-      ref={sectionRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative overflow-hidden animate-pulse-bg px-6 py-24 md:py-32 text-center"
-    >
-      {/*Follow mouse*/}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-60 transition-[background] duration-300 ease-out"
-        style={{
-          background: `radial-gradient(600px circle at ${meshPos.x}% ${meshPos.y}%, rgba(204, 192, 252, 1), transparent 60%)`,
-        }}
-      />
+    <section className="relative overflow-hidden bg-navy-dark px-6 md:px-10 lg:px-20 py-20 md:py-32">
+      <Orb className="absolute aspect-square w-[120vw] -left-[60vw] -bottom-[40vw] md:w-[640px] md:-left-40 md:-bottom-60" />
 
-      <div className="relative z-10 max-w-2xl mx-auto">
-        <h2 className="font-poppins font-bold text-3xl md:text-[48px] text-white text-glow leading-tight">
-          ¿Quieres saber más?
-        </h2>
-        <p className="font-poppins mt-4 text-white/70 text-[16px] md:text-[18px]">
-          Conoce retos, premios, agenda y todo lo que necesitas saber para
-          formar parte del próximo Datathon
-        </p>
-
-        {/*Countdown*/}
-        <div className="mt-10 flex justify-center gap-3 md:gap-5">
-          {countdownItems.map(({ label, value }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl w-16 md:w-20 py-3"
-            >
-              <span className="font-poppins font-bold text-2xl md:text-3xl text-white tabular-nums">
-                {pad(value)}
-              </span>
-              <span className="text-[11px] uppercase tracking-wide text-white/50 mt-1">
-                {label}
-              </span>
-            </div>
-          ))}
+      <div className="relative z-10 max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 lg:items-center">
+        <div>
+          <p className="eyebrow">{edition.name}</p>
+          <h2 className="poster-title mt-4 text-5xl md:text-7xl">
+            ¿Quieres saber más?
+          </h2>
+          <p className="mt-4 text-xl font-light italic text-white/85">
+            Retos, premios, agenda y todo lo que necesitas para formar parte
+            del próximo Datathon.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <ButtonLink to="/datathon">Ver detalles</ButtonLink>
+            <ButtonLink to="/agenda" variant="secondary">
+              Ver agenda
+            </ButtonLink>
+          </div>
         </div>
 
-        <Link
-          ref={buttonRef}
-          to="/datathon"
-          style={{ transform: `translate(${btnOffset.x}px, ${btnOffset.y}px)` }}
-          className="btn-glow mt-12 inline-flex items-center justify-center bg-blue rounded-full px-12 py-5 font-poppins font-semibold text-xl text-navy transition-transform duration-200 ease-out hover:scale-105"
-        >
-          Ver detalles del Datathon
-        </Link>
+        <div role="timer" aria-label="Tiempo restante para el Datathon">
+          <p className="eyebrow mb-4">Faltan</p>
+          <div className="grid grid-cols-4 border-y border-white/15 divide-x divide-white/15">
+            {timeLeft.map(({ label, value }) => (
+              <div key={label} className="py-5 text-center">
+                <span className="block poster-title text-4xl md:text-6xl tabular-nums">
+                  {String(value).padStart(2, "0")}
+                </span>
+                <span className="mt-2 block font-mono text-[11px] uppercase tracking-widest text-white/60">
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -9,7 +9,12 @@ import {
 } from "../components/icons.tsx";
 // TODO(backend): reemplazar por getEdition(), getChallenges() y getPrizes()
 // de src/services/datathon.ts cuando existan las tablas (ver src/data/datathon.ts)
-import { challenges, edition, prizes } from "../data/datathon.ts";
+import {
+  challenges,
+  edition,
+  prizes,
+  registrationHref,
+} from "../data/datathon.ts";
 import {
   formatCurrency,
   formatDate,
@@ -28,7 +33,7 @@ const podiumOrder: Record<number, string> = {
 export default function Datathon() {
   const stats = [
     {
-      value: `${hoursBetween(edition.startsAt, edition.endsAt)} h`,
+      value: `${hoursBetween(edition.startsAt, edition.endsAt)}h`,
       label: "de competencia",
     },
     {
@@ -49,7 +54,7 @@ export default function Datathon() {
     {
       icon: ClockIcon,
       label: "Horario",
-      value: `Inicia ${formatTime(edition.startsAt)} · Termina ${formatTime(edition.endsAt)}`,
+      value: `${formatTime(edition.startsAt)} – ${formatTime(edition.endsAt)}`,
       detail: "Hora de Monterrey",
     },
     {
@@ -66,94 +71,91 @@ export default function Datathon() {
     },
   ];
 
-  const quickFacts = [
-    `${formatShortDate(edition.startsAt)} – ${formatShortDate(edition.endsAt)}`,
-    edition.venueAddress,
-    edition.modality,
-  ];
-
   return (
     <>
       <PageHeader
         eyebrow={edition.name}
         title="Detalles del Datathon"
+        spark={false}
         description={edition.tagline}
       >
-        <div className="flex flex-wrap justify-center gap-3">
-          {quickFacts.map((fact) => (
-            <span
-              key={fact}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 font-poppins text-sm text-white/80"
-            >
-              {fact}
-            </span>
-          ))}
+        {/*Datos del evento como en los posts: lineas simples con separadores*/}
+        <div className="flex flex-col gap-1 text-lg md:text-2xl">
+          <p>
+            {formatShortDate(edition.startsAt)} –{" "}
+            {formatShortDate(edition.endsAt)}
+          </p>
+          <p>
+            {edition.venueAddress} <span className="text-white/40">|</span>{" "}
+            {edition.modality}
+          </p>
+          <a href="#sede" className="underline underline-offset-4 hover:text-sky">
+            {edition.venueName}
+          </a>
         </div>
       </PageHeader>
 
-      {/*Que es*/}
+      {/*Que es: cifras grandes, sin tarjetas*/}
       <Section id="que-es">
-        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+        <div className="grid lg:grid-cols-2 lg:gap-12 lg:items-center">
           <SectionHeading
-            eyebrow="El evento"
+            eyebrow="01 — El evento"
             title="¿Qué es el Datathon?"
-            description={edition.description}
-            align="left"
           />
-
-          <div className="grid grid-cols-2 gap-4 md:gap-6">
-            {stats.map(({ value, label }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 p-6 md:p-8 text-center"
-              >
-                <span className="font-poppins font-bold text-3xl md:text-[42px] text-blue text-glow tabular-nums">
-                  {value}
-                </span>
-                <span className="text-sm md:text-base text-white/60">
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
+          <p className="text-white/75 text-lg leading-relaxed">
+            {edition.description}
+          </p>
         </div>
+
+        <dl className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6">
+          {stats.map(({ value, label }) => (
+            <div key={label} className="border-l-2 border-electric pl-4">
+              <dt className="sr-only">{label}</dt>
+              <dd className="poster-title text-5xl md:text-7xl tabular-nums">
+                {value}
+              </dd>
+              <dd className="mt-2 font-mono text-xs uppercase tracking-widest text-white/60">
+                {label}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </Section>
 
-      {/*Fecha y sede*/}
-      <Section id="sede">
+      {/*Fecha y sede: banda cobalto*/}
+      <Section id="sede" tone="cobalt">
         <SectionHeading
-          eyebrow="Logística"
+          eyebrow="02 — Logística"
           title="Fecha y sede"
           description="Todo lo que necesitas saber para llegar al evento."
         />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-10 lg:grid-cols-2">
+          <dl className="divide-y divide-white/20 border-y border-white/20">
             {details.map(({ icon: Icon, label, value, detail }) => (
-              <div
-                key={label}
-                className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-6"
-              >
-                <Icon className="w-7 h-7 text-blue" />
-                <span className="text-xs uppercase tracking-wide text-white/50">
-                  {label}
-                </span>
-                <span className="font-poppins font-semibold text-white">
-                  {value}
-                </span>
-                <span className="text-sm text-white/60">{detail}</span>
+              <div key={label} className="flex gap-4 py-5">
+                <Icon className="w-6 h-6 shrink-0 text-sky" />
+                <div>
+                  <dt className="font-mono text-xs uppercase tracking-widest text-white/60">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 font-display font-bold text-lg md:text-xl">
+                    {value}
+                  </dd>
+                  <dd className="text-white/70">{detail}</dd>
+                </div>
               </div>
             ))}
-          </div>
+          </dl>
 
           {/*Mapa: placeholder hasta tener editions.venue_map_url*/}
-          <div className="flex min-h-72 items-center justify-center rounded-xl border-2 border-dashed border-white/15 bg-white/5 p-8 text-center">
+          <div className="flex min-h-72 items-center justify-center rounded-lg border-2 border-dashed border-white/30 p-8 text-center">
             <div>
-              <MapPinIcon className="mx-auto w-10 h-10 text-blue" />
-              <p className="mt-4 font-poppins font-semibold text-white">
+              <MapPinIcon className="mx-auto w-10 h-10 text-sky" />
+              <p className="mt-4 font-display font-bold uppercase">
                 Mapa de la sede
               </p>
-              <p className="mt-1 text-sm text-white/50">
+              <p className="mt-1 text-sm text-white/70">
                 Estará disponible cuando se confirme la sede.
               </p>
               {edition.venueMapUrl && (
@@ -161,7 +163,7 @@ export default function Datathon() {
                   href={edition.venueMapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-4 inline-block text-lavender/75 hover:underline"
+                  className="mt-4 inline-block underline underline-offset-4 hover:text-sky"
                 >
                   Abrir en Google Maps
                 </a>
@@ -171,97 +173,105 @@ export default function Datathon() {
         </div>
       </Section>
 
-      {/*Retos*/}
+      {/*Retos: lista numerada editorial*/}
       <Section id="retos">
         <SectionHeading
-          eyebrow="Retos"
+          eyebrow="03 — Retos"
           title="Problemas reales de la industria"
           description="Cada reto es propuesto por un sponsor e incluye datos reales para trabajar."
         />
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {challenges.map((challenge) => (
-            <article
+        <ol className="border-t border-white/15">
+          {challenges.map((challenge, i) => (
+            <li
               key={challenge.id}
-              className="flex flex-col gap-4 rounded-xl border border-white/10 bg-white/5 p-6 md:p-8 transition delay-100 ease-in-out hover:-translate-y-1 hover:border-blue/50"
+              className="grid gap-4 md:grid-cols-[8rem_1fr_auto] md:gap-10 border-b border-white/15 py-8"
             >
-              <div className="flex flex-wrap gap-2">
-                {challenge.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-blue/15 px-3 py-1 text-xs font-medium text-blue"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <span className="poster-title text-5xl md:text-7xl text-electric">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <h3 className="font-display font-bold text-xl md:text-2xl">
+                  {challenge.title}
+                </h3>
+                <p className="mt-2 text-white/70 leading-relaxed">
+                  {challenge.description}
+                </p>
+                <p className="mt-3 text-sm italic text-white/60">
+                  Propuesto por:{" "}
+                  {challenge.sponsorName ?? "Sponsor por confirmar"}
+                </p>
               </div>
-              <h3 className="font-poppins font-semibold text-xl text-white">
-                {challenge.title}
-              </h3>
-              <p className="text-[15px] text-white/70 leading-relaxed">
-                {challenge.description}
-              </p>
-              <p className="mt-auto pt-2 text-sm text-lavender/75">
-                Propuesto por: {challenge.sponsorName ?? "Sponsor por confirmar"}
-              </p>
-            </article>
+              <ul className="flex flex-wrap md:flex-col md:items-end gap-2">
+                {challenge.tags.map((tag) => (
+                  <li
+                    key={tag}
+                    className="font-mono text-xs uppercase tracking-wider text-sky"
+                  >
+                    #{tag}
+                  </li>
+                ))}
+              </ul>
+            </li>
           ))}
-        </div>
+        </ol>
       </Section>
 
-      {/*Premios*/}
+      {/*Premios: podio con el 1er lugar en azul electrico*/}
       <Section id="premios">
         <SectionHeading
-          eyebrow="Premios"
+          eyebrow="04 — Premios"
           title="Lo que está en juego"
           description="Los tres mejores equipos se llevan premios en efectivo y beneficios de nuestros sponsors."
         />
 
-        <div className="grid gap-6 md:grid-cols-3 md:items-end">
+        <div className="grid gap-4 md:grid-cols-3 md:items-end">
           {prizes.map((prize) => {
             const isFirst = prize.place === 1;
             return (
               <article
                 key={prize.id}
-                className={`${podiumOrder[prize.place] ?? ""} flex flex-col items-center gap-3 rounded-xl border p-8 text-center ${
+                className={`${podiumOrder[prize.place] ?? ""} relative overflow-hidden rounded-lg p-8 ${
                   isFirst
-                    ? "btn-glow border-blue/60 bg-blue/10 md:py-14"
-                    : "border-white/10 bg-white/5"
+                    ? "bg-electric md:pb-20"
+                    : "border border-white/15"
                 }`}
               >
-                <span
-                  className={`font-poppins font-bold ${
-                    isFirst ? "text-6xl text-blue text-glow" : "text-5xl text-lavender"
-                  }`}
-                >
+                <span className="poster-title text-7xl md:text-8xl">
                   {prize.place}º
                 </span>
-                <h3 className="font-poppins font-semibold text-xl text-white">
+                <h3 className="mt-4 font-display font-bold text-xl">
                   {prize.title}
                 </h3>
-                <p className="font-poppins font-bold text-2xl text-white tabular-nums">
+                <p className="mt-1 font-display font-black text-3xl tabular-nums">
                   {formatCurrency(prize.amountMxn)}
                 </p>
-                <p className="text-sm text-white/60">{prize.description}</p>
+                <p className="mt-3 text-sm text-white/75">
+                  {prize.description}
+                </p>
               </article>
             );
           })}
         </div>
       </Section>
 
-      {/*CTA final*/}
-      <Section className="pb-24 md:pb-32">
-        <div className="rounded-2xl border border-white/10 bg-navy px-6 py-12 md:py-16 text-center">
-          <h2 className="font-poppins font-bold text-3xl md:text-[42px] text-white text-glow leading-tight">
-            ¿Listo para participar?
-          </h2>
-          <p className="font-poppins mt-4 text-white/70 text-[16px] md:text-[18px]">
-            Revisa la agenda y resuelve tus dudas antes de inscribirte.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <ButtonLink to="/agenda">Ver agenda</ButtonLink>
-            <ButtonLink to="/faq" variant="secondary">
-              Preguntas frecuentes
+      {/*CTA final: poster azul electrico*/}
+      <Section tone="electric">
+        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="poster-title text-5xl md:text-7xl">
+              ¿Listo para
+              <br />
+              participar?
+            </h2>
+            <p className="mt-4 text-xl font-light italic">
+              Revisa la agenda y resuelve tus dudas antes de inscribirte.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <ButtonLink to={registrationHref}>Inscríbete</ButtonLink>
+            <ButtonLink to="/agenda" variant="secondary">
+              Ver agenda
             </ButtonLink>
           </div>
         </div>

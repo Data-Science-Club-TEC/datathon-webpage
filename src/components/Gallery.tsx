@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { Section, SectionHeading } from "./Section.tsx";
+import { ChevronRightIcon } from "./icons.tsx";
 
 const galleryModules = import.meta.glob<string>(
   "../assets/gallery/*.{jpg,jpeg,png,webp}",
@@ -9,131 +11,81 @@ const images = Object.keys(galleryModules)
   .sort()
   .map((path) => galleryModules[path]);
 
-export default function GalleryCarousel() {
+const arrowClass =
+  "hidden md:flex absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white items-center justify-center shadow-lg text-navy-dark cursor-pointer";
+
+export default function Gallery() {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const scrollByOne = (direction: 1 | -1) => {
+  const slideAt = (i: number) =>
+    trackRef.current?.children[i] as HTMLElement | undefined;
+
+  const scrollToIndex = (i: number) => {
     const track = trackRef.current;
-    if (!track) return;
-    const firstSlide = track.children[0] as HTMLElement | undefined;
-    if (!firstSlide) return;
-    const slideWidth = firstSlide.clientWidth + 24; // gap-6 = 24px
-    track.scrollBy({ left: direction * slideWidth, behavior: "smooth" });
+    const slide = slideAt(Math.max(0, Math.min(i, images.length - 1)));
+    if (track && slide) track.scrollTo({ left: slide.offsetLeft, behavior: "smooth" });
   };
 
-  const scrollToIndex = (index: number) => {
+  // Slide activo = el que esta mas cerca del borde izquierdo (snap-start)
+  const onScroll = () => {
     const track = trackRef.current;
-    if (!track) return;
-    const slide = track.children[index] as HTMLElement | undefined;
-    slide?.scrollIntoView({ behavior: "smooth", inline: "start" });
+    const step = slideAt(1)?.offsetLeft ?? 0;
+    if (track && step) setActiveIndex(Math.round(track.scrollLeft / step));
   };
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    const updateActive = () => {
-      const trackCenter = track.scrollLeft + track.clientWidth / 2;
-      let closest = 0;
-      let minDist = Infinity;
-      Array.from(track.children).forEach((child, i) => {
-        const el = child as HTMLElement;
-        const dist = Math.abs(el.offsetLeft + el.clientWidth / 2 - trackCenter);
-        if (dist < minDist) {
-          minDist = dist;
-          closest = i;
-        }
-      });
-      setActiveIndex(closest);
-    };
-
-    track.addEventListener("scroll", updateActive);
-    updateActive();
-    return () => track.removeEventListener("scroll", updateActive);
-  }, []);
 
   return (
-    <section className="section-dark px-6 md:px-20 py-16 md:py-20">
-      <h2 className="font-poppins font-bold text-4xl md:text-[48px] text-center tracking-tight text-white text-glow mb-8">
-        Galería
-      </h2>
+    <Section>
+      <SectionHeading title="Galería" align="center" />
 
       <div className="relative">
         <div
           ref={trackRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth"
-          id="carousel-track"
+          onScroll={onScroll}
+          className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {images.map((src, i) => (
-            <div
+            <img
               key={src}
-              className="carousel-slide shrink-0 w-[85%] sm:w-[45%] md:w-[31%] h-65 md:h-80 rounded-lg overflow-hidden"
-            >
-              <img
-                src={src}
-                alt={`Foto del datathon ${i + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </div>
+              src={src}
+              alt={`Foto del datathon ${i + 1}`}
+              loading="lazy"
+              className="snap-start shrink-0 w-[85%] sm:w-[calc(50%-8px)] md:w-[calc(33.333%-16px)] h-64 md:h-80 rounded-lg object-cover"
+            />
           ))}
         </div>
 
         <button
-          onClick={() => scrollByOne(-1)}
+          onClick={() => scrollToIndex(activeIndex - 1)}
           aria-label="Anterior"
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg"
+          className={`${arrowClass} left-0 -translate-x-1/2`}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5 text-navy"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ChevronRightIcon className="w-5 h-5 rotate-180" />
         </button>
-
         <button
-          onClick={() => scrollByOne(1)}
+          onClick={() => scrollToIndex(activeIndex + 1)}
           aria-label="Siguiente"
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-11 h-11 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg"
+          className={`${arrowClass} right-0 translate-x-1/2`}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5 text-navy"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
+          <ChevronRightIcon className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="flex justify-center gap-2 mt-6">
+      <div className="flex justify-center mt-4">
         {images.map((_, i) => (
           <button
             key={i}
             onClick={() => scrollToIndex(i)}
             aria-label={`Ir a la imagen ${i + 1}`}
-            className={`w-2.5 h-2.5 rounded-full transition-colors ${
-              i === activeIndex ? "bg-white" : "bg-white/30"
-            }`}
-          />
+            aria-current={i === activeIndex}
+            className="p-1.5 cursor-pointer"
+          >
+            <span
+              className={`block w-2.5 h-2.5 rounded-full transition-colors ${i === activeIndex ? "bg-white" : "bg-white/30"}`}
+            />
+          </button>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

@@ -58,6 +58,14 @@ export function BuildingIcon({ className }: IconProps) {
   );
 }
 
+export function ChevronRightIcon({ className }: IconProps) {
+  return (
+    <Icon className={className}>
+      <path d="M9 6l6 6-6 6" />
+    </Icon>
+  );
+}
+
 export function ChevronDownIcon({ className }: IconProps) {
   return (
     <Icon className={className}>
