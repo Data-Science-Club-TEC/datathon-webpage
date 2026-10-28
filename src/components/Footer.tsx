@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import Instagram from "../assets/social/Instagram.svg";
 import LinkedIn from "../assets/social/LinkedIn.svg";
 import WhatsApp from "../assets/social/WhatsApp.svg";
@@ -28,7 +29,7 @@ const socialIcons = [
 
 export default function Footer() {
   return (
-    <footer className="section-dark px-6 md:px-[80px] py-5">
+    <footer id="contacto" className="section-dark px-6 md:px-[80px] py-5">
       <div className="flex ml-auto md:items-start md:justify-between gap-8">
         <p className="text-[16px] text-white/75">
           Data Science Club Datathon © 2026
@@ -37,24 +38,26 @@ export default function Footer() {
         <div className="grid grid-cols-3 md:flex-row gap-10 md:gap-16 text-[16px] font-medium">
           <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
             <span className="text-white/75">Datathon</span>
-            <a href="#" className="text-lavender/75 hover:underline">
+            <Link to="/datathon#sede" className="text-lavender/75 hover:underline">
               Lugar y fecha
-            </a>
-            <a href="#" className="text-lavender/75 hover:underline">
+            </Link>
+            <Link to="/agenda" className="text-lavender/75 hover:underline">
               Agenda
-            </a>
-            <a href="#" className="text-lavender/75 hover:underline">
+            </Link>
+            <Link to="/datathon#retos" className="text-lavender/75 hover:underline">
               Retos
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
             <span className="text-white/75">Contacto</span>
+            {/*Pendiente: pagina /equipo*/}
             <a href="#" className="text-lavender/75 hover:underline">
               Equipo organizador
             </a>
           </div>
           <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
             <span className="text-white/75">Inscripción</span>
+            {/*Pendiente: pagina /inscripcion*/}
             <a href="#" className="text-lavender/75 hover:underline">
               Registro
             </a>
