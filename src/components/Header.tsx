@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { Link, NavLink } from "react-router";
 import logo from "../assets/logo-notext.svg";
 
 const navLinks = [
-  { label: "Inicio", href: "#" },
-  { label: "Datathon", href: "#" },
-  { label: "Contacto", href: "#" },
-  { label: "FAQ", href: "#" },
+  { label: "Inicio", to: "/" },
+  { label: "Datathon", to: "/datathon" },
+  { label: "Agenda", to: "/agenda" },
+  { label: "FAQ", to: "/faq" },
 ];
+
+// Contacto no es una pagina: baja al footer (id="contacto") de la pagina actual
+const contactHref = "#contacto";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +19,7 @@ export default function Header() {
     <nav className="fixed top-0 inset-x-0 z-20 w-full h-22 lg:[1024px]">
       <div className="h-[100px] lg:h-[96px] flex items-center justify-between px-6 lg:px-[60px]">
         {/*Logo*/}
-        <div className="flex items-center gap-2 shrink-0">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
           <img
             src={logo}
             alt="Datathon logo"
@@ -25,21 +29,32 @@ export default function Header() {
             <span className="text-blue">data</span>
             <span className="text-lavender">thon</span>
           </div>
-        </div>
+        </Link>
 
         <div className="hidden lg:flex items-center gap-8 font-poppins font-regular text-[16px] text-white backdrop-blur-sm bg-[rgba(196,196,196,0.09)] rounded-full px-8 py-3 shadow-lg/25">
           {navLinks.map((link) => (
-            <a
+            <NavLink
               key={link.label}
-              href={link.href}
-              className="hover:text-[#9fbfed] transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 whitespace-nowrap"
+              to={link.to}
+              end
+              className={({ isActive }) =>
+                `hover:text-[#9fbfed] transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 whitespace-nowrap ${
+                  isActive ? "text-[#9fbfed]" : ""
+                }`
+              }
             >
               {link.label}
-            </a>
+            </NavLink>
           ))}
+          <a
+            href={contactHref}
+            className="hover:text-[#9fbfed] transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 whitespace-nowrap"
+          >
+            Contacto
+          </a>
         </div>
 
-        {/*CTA desktop*/}
+        {/*CTA desktop: apuntara a /inscripcion cuando exista la pagina*/}
         <a
           href="#"
           className="btn-glow hidden lg:flex items-center justify-center shrink-0 bg-[rgba(255,255,255,0.2)] backdrop-blur-sm border-2 border-[rgba(255,255,255,0.41)] rounded-4xl px-6 py-3 font-poppins font-semibold text-[16px] text-white transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 hover:text-[#9fbfed]"
@@ -55,8 +70,8 @@ export default function Header() {
           className="cursor-pointer lg:hidden relative w-8 h-8 shrink-0 flex items-center justify-center"
         >
           <span
-            className={`absolute h-0.5 2-6 bg-lavender rounded-full transition-all duration-300 ${
-              isOpen ? "rotate-45" : "translate-y-2"
+            className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-all duration-300 ${
+              isOpen ? "rotate-45" : "-translate-y-2"
             }`}
           />
           <span
@@ -65,7 +80,7 @@ export default function Header() {
             }`}
           />
           <span
-            className={`absolue h-0.5 w-6 bg-lavender rounded-full transition-all duration-300 ${
+            className={`absolute h-0.5 w-6 bg-lavender rounded-full transition-all duration-300 ${
               isOpen ? "-rotate-45" : "translate-y-2"
             }`}
           />
@@ -82,15 +97,27 @@ export default function Header() {
       >
         <div className="flex flex-col items-center gap-7 px-6 py-9 font-poppins font-regular text-[17px] text-white">
           {navLinks.map((link) => (
-            <a
+            <NavLink
               key={link.label}
-              href={link.href}
+              to={link.to}
+              end
               onClick={() => setIsOpen(false)}
-              className="hover:text-[#9fbfed] transition-colors"
+              className={({ isActive }) =>
+                `hover:text-[#9fbfed] transition-colors ${
+                  isActive ? "text-[#9fbfed]" : ""
+                }`
+              }
             >
               {link.label}
-            </a>
+            </NavLink>
           ))}
+          <a
+            href={contactHref}
+            onClick={() => setIsOpen(false)}
+            className="hover:text-[#9fbfed] transition-colors"
+          >
+            Contacto
+          </a>
           <a
             href="#"
             onClick={() => setIsOpen(false)}

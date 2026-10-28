@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { Link } from "react-router";
+import { edition } from "../data/datathon.ts";
 
 {
-  /*D-Day*/
+  /*D-Day: misma fecha que la pagina /datathon*/
 }
-const TARGET_DATE = new Date("2027-03-10T09:00:00");
+const TARGET_DATE = new Date(edition.startsAt);
 
 function getTimeLeft() {
   const diff = Math.max(TARGET_DATE.getTime() - Date.now(), 0);
@@ -112,14 +114,14 @@ export default function CTA() {
           ))}
         </div>
 
-        <a
+        <Link
           ref={buttonRef}
-          href="#"
+          to="/datathon"
           style={{ transform: `translate(${btnOffset.x}px, ${btnOffset.y}px)` }}
           className="btn-glow mt-12 inline-flex items-center justify-center bg-blue rounded-full px-12 py-5 font-poppins font-semibold text-xl text-navy transition-transform duration-200 ease-out hover:scale-105"
         >
           Ver detalles del Datathon
-        </a>
+        </Link>
       </div>
     </section>
   );
