@@ -54,6 +54,15 @@ export const dayKey = (iso: string) => dayKeyFormatter.format(new Date(iso));
 export const formatCurrency = (amount: number | null) =>
   amount === null ? "Por confirmar" : currencyFormatter.format(amount);
 
+const fileSizeFormatter = new Intl.NumberFormat(LOCALE, {
+  maximumFractionDigits: 1,
+});
+
+export const formatFileSize = (bytes: number) =>
+  bytes < 1024 * 1024
+    ? `${fileSizeFormatter.format(bytes / 1024)} KB`
+    : `${fileSizeFormatter.format(bytes / (1024 * 1024))} MB`;
+
 export const hoursBetween = (startIso: string, endIso: string) =>
   Math.round(
     (new Date(endIso).getTime() - new Date(startIso).getTime()) / 3_600_000,

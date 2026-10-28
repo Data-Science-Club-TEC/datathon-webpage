@@ -256,12 +256,13 @@ export default function Datathon() {
             ¿Listo para participar?
           </h2>
           <p className="font-poppins mt-4 text-white/70 text-[16px] md:text-[18px]">
-            Revisa la agenda y resuelve tus dudas antes de inscribirte.
+            Inscríbete con o sin equipo. Si tienes dudas, revisa la agenda y
+            las preguntas frecuentes.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <ButtonLink to="/agenda">Ver agenda</ButtonLink>
-            <ButtonLink to="/faq" variant="secondary">
-              Preguntas frecuentes
+            <ButtonLink to="/inscripcion">Inscribirme</ButtonLink>
+            <ButtonLink to="/agenda" variant="secondary">
+              Ver agenda
             </ButtonLink>
           </div>
         </div>

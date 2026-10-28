@@ -30,12 +30,12 @@ const socialIcons = [
 export default function Footer() {
   return (
     <footer id="contacto" className="section-dark px-6 md:px-[80px] py-5">
-      <div className="flex ml-auto md:items-start md:justify-between gap-8">
+      <div className="flex flex-col md:flex-row ml-auto md:items-start md:justify-between gap-8">
         <p className="text-[16px] text-white/75">
           Data Science Club Datathon © 2026
         </p>
 
-        <div className="grid grid-cols-3 md:flex-row gap-10 md:gap-16 text-[16px] font-medium">
+        <div className="grid grid-cols-3 md:flex-row gap-6 md:gap-16 text-[16px] font-medium">
           <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
             <span className="text-white/75">Datathon</span>
             <Link to="/datathon#sede" className="text-lavender/75 hover:underline">
@@ -57,10 +57,9 @@ export default function Footer() {
           </div>
           <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
             <span className="text-white/75">Inscripción</span>
-            {/*Pendiente: pagina /inscripcion*/}
-            <a href="#" className="text-lavender/75 hover:underline">
+            <Link to="/inscripcion" className="text-lavender/75 hover:underline">
               Registro
-            </a>
+            </Link>
           </div>
         </div>
       </div>

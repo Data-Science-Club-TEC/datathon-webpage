@@ -54,13 +54,13 @@ export default function Header() {
           </a>
         </div>
 
-        {/*CTA desktop: apuntara a /inscripcion cuando exista la pagina*/}
-        <a
-          href="#"
+        {/*CTA desktop*/}
+        <Link
+          to="/inscripcion"
           className="btn-glow hidden lg:flex items-center justify-center shrink-0 bg-[rgba(255,255,255,0.2)] backdrop-blur-sm border-2 border-[rgba(255,255,255,0.41)] rounded-4xl px-6 py-3 font-poppins font-semibold text-[16px] text-white transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 hover:text-[#9fbfed]"
         >
           Inscripción
-        </a>
+        </Link>
 
         {/*Mobile nav button*/}
         <button
@@ -118,13 +118,13 @@ export default function Header() {
           >
             Contacto
           </a>
-          <a
-            href="#"
+          <Link
+            to="/inscripcion"
             onClick={() => setIsOpen(false)}
             className="hover:text-[#9fbfed] transition-colors"
           >
             Inscripción
-          </a>
+          </Link>
         </div>
       </div>
     </nav>

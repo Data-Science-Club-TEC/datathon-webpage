@@ -58,3 +58,25 @@
 .animate-pulse-bg {
   animation: pulse-bg 6s ease-in-out infinite;
 }
+
+/* Inscripcion: entrada de cada paso */
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-step-in {
+  animation: step-in 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-step-in {
+    animation: none;
+  }
+}
