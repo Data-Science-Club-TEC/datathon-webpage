@@ -5,8 +5,7 @@ import type { Challenge, Edition, Prize } from "../types/content";
 // Al conectarlo, crear src/services/datathon.ts con getEdition(),
 // getChallenges() y getPrizes(), y reemplazar estos imports en las paginas.
 
-// Pendiente: cambiar a "/inscripcion" cuando exista la pagina
-export const registrationHref = "#";
+export const registrationHref = "/inscripcion";
 
 // Monterrey usa UTC-6 todo el año (sin horario de verano desde 2022)
 export const edition: Edition = {

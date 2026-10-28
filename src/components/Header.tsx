@@ -41,12 +41,12 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-3">
-          <a
-            href={registrationHref}
+          <Link
+            to={registrationHref}
             className="btn btn-primary px-4 py-2 lg:px-5 text-xs! lg:text-sm!"
           >
             Inscripción
-          </a>
+          </Link>
 
           <button
             onClick={() => setIsOpen((prev) => !prev)}
