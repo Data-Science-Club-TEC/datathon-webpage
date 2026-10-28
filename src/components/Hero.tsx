@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import logo from "../assets/logo-text-bbg.svg";
 import heroLoop from "../assets/herovid.mp4";
 
@@ -27,13 +28,13 @@ export default function Hero() {
           className="w-full max-w-184.5 drop-shadow-lg/50 object-contain"
         />
 
-        {/*CTA button: apuntara a /inscripcion cuando exista la pagina*/}
-        <a
-          href="#"
+        {/*CTA button*/}
+        <Link
+          to="/inscripcion"
           className="mt-6 md:mt-10 inline-flex items-center justify-center backdrop-blur-[37.8px] bg-[rgba(255,255,255,0.1)] border-3 border-[rgba(255,255,255,0.3)] rounded-full px-10 py-5 font-poppins font-semibold text-2xl md:text-[36px] text-white transition delay-100 ease-in-out hover:-translate-y--1 hover:scale-110 hover:text-[#9fbfed]"
         >
           Inscripción
-        </a>
+        </Link>
       </div>
     </section>
   );
