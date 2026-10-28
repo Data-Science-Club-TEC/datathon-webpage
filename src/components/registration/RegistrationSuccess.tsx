@@ -62,7 +62,7 @@ export default function RegistrationSuccess({ draft, result }: RegistrationSucce
       <p className="mt-8 font-poppins text-sm font-semibold uppercase tracking-[0.2em] text-blue">
         Cumbre alcanzada · Inscripción completa
       </p>
-      <h1 className="mt-3 font-poppins text-4xl font-bold leading-tight text-white text-glow md:text-[52px]">
+      <h1 className="mt-3 font-poppins text-4xl font-bold leading-tight text-white md:text-[52px]">
         ¡Listo, {draft.firstName.trim()}!
       </h1>
       <p className="mx-auto mt-4 max-w-xl font-poppins text-white/70 md:text-lg">
@@ -71,7 +71,7 @@ export default function RegistrationSuccess({ draft, result }: RegistrationSucce
       </p>
 
       {result.teamCode ? (
-        <div className="mt-10 rounded-2xl border border-lavender/30 bg-navy/60 p-6 md:p-8">
+        <div className="mt-10 rounded-none border border-lavender/30 bg-navy/60 p-6 md:p-8">
           <p className="text-sm text-white/55">Código de “{draft.newTeamName.trim()}”</p>
           <p className="mt-3 font-mono text-3xl font-semibold tracking-[0.35em] text-lavender md:text-4xl">
             {result.teamCode}
@@ -89,7 +89,7 @@ export default function RegistrationSuccess({ draft, result }: RegistrationSucce
           </p>
         </div>
       ) : (
-        <div className="mt-10 flex items-start gap-4 rounded-2xl border border-white/10 bg-navy/60 p-5 text-left md:p-6">
+        <div className="mt-10 flex items-start gap-4 rounded-none border border-white/10 bg-navy/60 p-5 text-left md:p-6">
           <UsersIcon className="mt-0.5 h-6 w-6 shrink-0 text-blue" />
           <p className="text-white/75">{teamMessage(draft)}</p>
         </div>
@@ -97,7 +97,7 @@ export default function RegistrationSuccess({ draft, result }: RegistrationSucce
 
       <ol className="mt-10 grid gap-4 text-left sm:grid-cols-3">
         {nextSteps.map((step, i) => (
-          <li key={step.title} className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
+          <li key={step.title} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
             <span className="font-mono text-xs text-blue">{String(i + 1).padStart(2, "0")}</span>
             <p className="mt-2 font-poppins font-semibold text-white">{step.title}</p>
             <p className="mt-1 text-[13px] text-white/55">{step.description}</p>

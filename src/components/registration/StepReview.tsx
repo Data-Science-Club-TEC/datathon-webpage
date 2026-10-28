@@ -72,7 +72,7 @@ function Summary({
   rows: [string, ReactNode][];
 }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
+    <section className="rounded-none border border-white/10 bg-white/[0.02] p-5">
       <div className="mb-4 flex items-center justify-between gap-4">
         <h3 className="font-poppins font-semibold text-white">{title}</h3>
         <button
@@ -183,7 +183,7 @@ export default function StepReview({
         rows={[["Preferencia", teamSummary(d)]]}
       />
 
-      <div className="mt-3 flex flex-col gap-4 rounded-xl border border-white/10 bg-white/[0.02] p-5 md:p-6">
+      <div className="mt-3 flex flex-col gap-4 rounded-none border border-white/10 bg-white/[0.02] p-5 md:p-6">
         {/* PLACEHOLDER: enlazar a las paginas reales del aviso de privacidad y del reglamento */}
         <p className="text-[13px] text-white/50">
           Antes de enviar, lee el{" "}
@@ -231,7 +231,7 @@ export default function StepReview({
       {submitError && (
         <p
           role="alert"
-          className="rounded-lg border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
+          className="rounded-none border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger"
         >
           {submitError}
         </p>

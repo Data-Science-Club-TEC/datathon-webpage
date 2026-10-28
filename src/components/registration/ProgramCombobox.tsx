@@ -120,7 +120,7 @@ export default function ProgramCombobox({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-30 mt-2 max-h-72 w-full overflow-auto rounded-xl border border-white/10 bg-navy p-1.5 shadow-2xl shadow-black/50"
+          className="absolute z-30 mt-2 max-h-72 w-full overflow-auto rounded-none border border-white/10 bg-navy p-1.5 shadow-2xl shadow-black/50"
         >
           {results.length === 0 ? (
             <li role="presentation" className="px-3 py-3 text-sm text-white/50">
@@ -139,7 +139,7 @@ export default function ProgramCombobox({
                   choose(option);
                 }}
                 onMouseEnter={() => setActive(i)}
-                className={`flex cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                className={`flex cursor-pointer items-center justify-between gap-3 rounded-none px-3 py-2.5 text-sm transition-colors ${
                   i === activeIndex ? "bg-white/10 text-white" : "text-white/75"
                 }`}
               >

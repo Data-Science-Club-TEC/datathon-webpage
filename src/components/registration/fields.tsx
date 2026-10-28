@@ -67,6 +67,19 @@ export function Field({
   );
 }
 
+// Panel con titulo para agrupar campos relacionados dentro de un paso
+export function Group({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="border-2 border-white/10 bg-navy-dark/60 p-4 sm:p-5 md:p-6">
+      <h3 className="mb-5 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-sky">
+        <span aria-hidden="true" className="h-2 w-2 bg-cyan" />
+        {title}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
 export function Select({
   className = "",
   children,
@@ -96,16 +109,16 @@ export function AddonInput({ addon, className = "", ...props }: AddonInputProps)
   const invalid = props["aria-invalid"] === true || props["aria-invalid"] === "true";
   return (
     <div
-      className={`flex h-12 overflow-hidden rounded-lg border bg-navy-dark/70 transition-colors focus-within:border-blue focus-within:ring-2 focus-within:ring-blue/25 ${
-        invalid ? "border-danger/70" : "border-white/10 hover:border-white/20"
+      className={`flex h-12 overflow-hidden rounded-none border-2 bg-navy-dark transition focus-within:border-cyan focus-within:shadow-[4px_4px_0_0_var(--color-cobalt)] ${
+        invalid ? "border-danger" : "border-white/20 hover:border-white/40"
       }`}
     >
-      <span className="flex shrink-0 select-none items-center border-r border-white/10 bg-white/[0.04] px-3 font-mono text-[13px] text-white/45">
+      <span className="flex shrink-0 select-none items-center border-r-2 border-white/20 bg-white/[0.06] px-3 font-mono text-[13px] text-white/45">
         {addon}
       </span>
       <input
         {...props}
-        className={`min-w-0 flex-1 bg-transparent px-3 text-[15px] text-white placeholder:text-white/30 outline-none ${className}`}
+        className={`min-w-0 flex-1 bg-transparent px-3 text-base text-white md:text-[15px] placeholder:text-white/30 outline-none ${className}`}
       />
     </div>
   );
@@ -156,7 +169,7 @@ export function Segmented<T extends string | boolean>({
           aria-labelledby={labelId}
           aria-describedby={error ? messageId : undefined}
           data-invalid={Boolean(error)}
-          className={`inline-flex w-fit shrink-0 flex-wrap gap-1 rounded-xl border bg-navy-dark/70 p-1 ${
+          className={`inline-flex w-fit shrink-0 flex-wrap gap-1 rounded-none border bg-navy-dark/70 p-1 ${
             error ? "border-danger/60" : "border-white/10"
           }`}
         >
@@ -172,7 +185,7 @@ export function Segmented<T extends string | boolean>({
                   onChange={() => onChange(option.value)}
                 />
                 <span
-                  className={`block rounded-lg px-5 py-2 text-sm font-semibold transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
+                  className={`block rounded-none px-5 py-2 text-sm font-semibold transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
                     checked
                       ? "bg-blue text-navy"
                       : "text-white/65 hover:bg-white/5 hover:text-white"
@@ -259,7 +272,7 @@ export function ChoiceCards<T extends string>({
                 onChange={() => onChange(option.value)}
               />
               <div
-                className={`flex h-full items-start gap-4 rounded-xl border p-4 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
+                className={`flex h-full items-start gap-4 rounded-none border p-4 transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
                   checked
                     ? "border-blue bg-blue/10"
                     : error
@@ -289,7 +302,7 @@ export function ChoiceCards<T extends string>({
                 </span>
                 <span
                   aria-hidden="true"
-                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-none border transition-colors ${
                     checked ? "border-blue bg-blue text-navy" : "border-white/25"
                   }`}
                 >
@@ -334,7 +347,7 @@ export function Checkbox({ checked, onChange, error, children }: CheckboxProps) 
         />
         <span
           aria-hidden="true"
-          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
+          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-none border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
             checked
               ? "border-blue bg-blue text-navy"
               : error
@@ -374,7 +387,7 @@ export function NumberStepper({
 
   return (
     <div
-      className={`inline-flex h-12 w-fit items-stretch overflow-hidden rounded-lg border bg-navy-dark/70 focus-within:border-blue focus-within:ring-2 focus-within:ring-blue/25 ${
+      className={`inline-flex h-12 w-fit items-stretch overflow-hidden rounded-none border bg-navy-dark/70 focus-within:border-blue focus-within:ring-2 focus-within:ring-blue/25 ${
         control["aria-invalid"] ? "border-danger/70" : "border-white/10"
       }`}
     >

@@ -1,25 +1,22 @@
 import type { ReactNode } from "react";
 import type { StepProps } from "./draft.ts";
-import { Field, NumberStepper, YesNo } from "./fields.tsx";
+import { Field, Group, NumberStepper, YesNo } from "./fields.tsx";
 import { MAX_HACKATHONS } from "./validation.ts";
 
-function Group({ title, children }: { title: string; children: ReactNode }) {
+function Rows({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/[0.02] p-5 md:p-6">
-      <h3 className="mb-5 font-mono text-[11px] uppercase tracking-[0.2em] text-white/45">
-        {title}
-      </h3>
-      <div className="flex flex-col divide-y divide-white/5 [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
+    <Group title={title}>
+      <div className="flex flex-col divide-y divide-white/10 [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0">
         {children}
       </div>
-    </section>
+    </Group>
   );
 }
 
 export default function StepExperience({ draft, errors, update }: StepProps) {
   return (
     <div className="flex flex-col gap-5">
-      <Group title="Hackathones">
+      <Rows title="Hackathones">
         <YesNo
           label="¿Has participado en algún hackathon antes?"
           name="hasHackathonExperience"
@@ -61,9 +58,9 @@ export default function StepExperience({ draft, errors, update }: StepProps) {
             </div>
           </>
         )}
-      </Group>
+      </Rows>
 
-      <Group title="Habilidades">
+      <Rows title="Habilidades">
         <YesNo
           label="¿Tienes experiencia en programación?"
           name="hasProgrammingExperience"
@@ -85,7 +82,7 @@ export default function StepExperience({ draft, errors, update }: StepProps) {
           onChange={(hasSystemDesignExperience) => update({ hasSystemDesignExperience })}
           error={errors.hasSystemDesignExperience}
         />
-      </Group>
+      </Rows>
     </div>
   );
 }

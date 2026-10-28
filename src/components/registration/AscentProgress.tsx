@@ -50,7 +50,7 @@ export default function AscentProgress({
   const done = points.slice(0, reached + 1);
   const last = done[done.length - 1];
   const summit = points[points.length - 1];
-  const areaPath = `${linePath(done)} L${last.x.toFixed(1)} ${HEIGHT} L${points[0].x.toFixed(1)} ${HEIGHT} Z`;
+  const areaPath = `${linePath(done)} L${last.x.toFixed(1)} ${BASE} L${points[0].x.toFixed(1)} ${BASE} Z`;
 
   return (
     <svg
@@ -79,7 +79,7 @@ export default function AscentProgress({
           y1={y}
           y2={y}
           strokeDasharray="2 6"
-          className="stroke-white/[0.07]"
+          className="stroke-white/15"
         />
       ))}
 
@@ -89,7 +89,7 @@ export default function AscentProgress({
         fill="none"
         strokeWidth="1.5"
         strokeDasharray="3 5"
-        className="stroke-white/20"
+        className="stroke-white/35"
       />
       <path d={areaPath} fill={`url(#${gradientId})`} />
       <path
@@ -120,7 +120,7 @@ export default function AscentProgress({
                 cx={p.x}
                 cy={p.y}
                 r="9"
-                className="fill-lavender/25 [transform-box:fill-box] [transform-origin:center] motion-safe:animate-ping"
+                className="fill-ember/30 [transform-box:fill-box] [transform-origin:center] motion-safe:animate-ping"
               />
             )}
             <circle
@@ -130,10 +130,10 @@ export default function AscentProgress({
               strokeWidth="1.25"
               className={
                 isCurrent
-                  ? "fill-lavender"
+                  ? "fill-ember"
                   : isDone
                     ? "fill-blue"
-                    : "fill-navy-dark stroke-white/30"
+                    : "fill-navy-dark stroke-white/50"
               }
             />
           </g>

@@ -3,6 +3,7 @@ import Instagram from "../assets/social/Instagram.svg";
 import LinkedIn from "../assets/social/LinkedIn.svg";
 import WhatsApp from "../assets/social/WhatsApp.svg";
 import Github from "../assets/social/Github.svg";
+import { registrationHref } from "../data/datathon.ts";
 
 const socialIcons = [
   {
@@ -18,7 +19,7 @@ const socialIcons = [
   {
     name: "WhatsApp",
     icon: WhatsApp,
-    href: "https://l.instagram.com/?u=https%3A%2F%2Fchat.whatsapp.com%2FIuy4RWeJYWV2S3PGvvyWZf%3Futm_source%3Dig%26utm_medium%3Dsocial%26utm_content%3Dlink_in_bio%26fbclid%3DPAcGRvZgJleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAaeQJ82b3nGqBnZljRwJTaRjrNOfcI1MguZ1fdjKUSjeTB0oebBlu4w-JlSrag_aem_bSoQS8Au7lgCekGXAJd5QQ&e=AUBVL1uFsbcvvrw55c7LhazFclAgqpOLGWNhioxOI4yLPCnSWVr9hVSszEcxX_MTKcTObLLvqT03COzmLzSJiTiFvCMZ8hVPBN3CDWg1FMC1awSfnT0h1QVUIlyNIUfsLa2OV99vNMINGmG17qxJky8",
+    href: "https://chat.whatsapp.com/Iuy4RWeJYWV2S3PGvvyWZf",
   },
   {
     name: "Github",
@@ -27,57 +28,81 @@ const socialIcons = [
   },
 ];
 
+// Pendiente: "Equipo organizador" apuntara a /equipo cuando exista la pagina
+const columns = [
+  {
+    title: "Datathon",
+    links: [
+      { label: "Lugar y fecha", to: "/datathon#sede" },
+      { label: "Agenda", to: "/agenda" },
+      { label: "Retos", to: "/datathon#retos" },
+    ],
+  },
+  {
+    title: "Contacto",
+    links: [
+      { label: "Equipo organizador", to: "#" },
+      { label: "Preguntas frecuentes", to: "/faq" },
+    ],
+  },
+  {
+    title: "Inscripción",
+    links: [{ label: "Registro", to: registrationHref }],
+  },
+];
+
 export default function Footer() {
   return (
-    <footer id="contacto" className="section-dark px-6 md:px-[80px] py-5">
-      <div className="flex flex-col md:flex-row ml-auto md:items-start md:justify-between gap-8">
-        <p className="text-[16px] text-white/75">
-          Data Science Club Datathon © 2026
-        </p>
-
-        <div className="grid grid-cols-3 md:flex-row gap-6 md:gap-16 text-[16px] font-medium">
-          <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
-            <span className="text-white/75">Datathon</span>
-            <Link to="/datathon#sede" className="text-lavender/75 hover:underline">
-              Lugar y fecha
-            </Link>
-            <Link to="/agenda" className="text-lavender/75 hover:underline">
-              Agenda
-            </Link>
-            <Link to="/datathon#retos" className="text-lavender/75 hover:underline">
-              Retos
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
-            <span className="text-white/75">Contacto</span>
-            {/*Pendiente: pagina /equipo*/}
-            <a href="#" className="text-lavender/75 hover:underline">
-              Equipo organizador
-            </a>
-          </div>
-          <div className="grid grid-cols-1 row-span-full gap-6 content-start md:items-end">
-            <span className="text-white/75">Inscripción</span>
-            <Link to="/inscripcion" className="text-lavender/75 hover:underline">
-              Registro
-            </Link>
-          </div>
+    <footer
+      id="contacto"
+      className="bg-navy-dark scroll-mt-20 border-t border-white/10 px-6 md:px-10 lg:px-20 py-12"
+    >
+      <div className="max-w-6xl mx-auto grid gap-10 md:grid-cols-[1fr_auto]">
+        <div className="flex flex-col gap-4">
+          <span className="font-brand font-semibold text-2xl tracking-tighter">
+            <span className="text-blue">data</span>
+            <span className="text-lavender">thon</span>
+          </span>
+          <ul className="flex gap-2 -ml-2">
+            {socialIcons.map(({ name, icon, href }) => (
+              <li key={name}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={name}
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition hover:bg-white/10"
+                >
+                  <img src={icon} alt="" className="w-6 h-6" />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
+
+        <nav className="grid grid-cols-2 sm:grid-cols-3 gap-8 md:gap-16">
+          {columns.map(({ title, links }) => (
+            <div key={title} className="flex flex-col gap-3">
+              <span className="font-mono text-xs uppercase tracking-widest text-white/50">
+                {title}
+              </span>
+              {links.map(({ label, to }) => (
+                <Link
+                  key={label}
+                  to={to}
+                  className="text-lavender/75 transition-colors hover:text-sky"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </nav>
       </div>
 
-      <div className="flex gap-2">
-        {socialIcons.map(({ name, icon, href }) => (
-          <a
-            key={name}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={name}
-            className="w-10 h-10 flex items-center justify-center rounded"
-          >
-            <img src={`${icon}`} alt={name} className="w-6 h-6" />
-          </a>
-        ))}
-      </div>
+      <p className="max-w-6xl mx-auto mt-10 pt-6 border-t border-white/5 text-sm text-white/50">
+        Data Science Club Datathon © 2026
+      </p>
     </footer>
   );
 }

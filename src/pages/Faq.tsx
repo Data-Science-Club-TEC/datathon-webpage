@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PageHeader from "../components/PageHeader.tsx";
+import ButtonLink from "../components/ButtonLink.tsx";
 import FilterPills from "../components/FilterPills.tsx";
 import { Section } from "../components/Section.tsx";
 import { ChevronDownIcon } from "../components/icons.tsx";
@@ -29,6 +30,7 @@ export default function Faq() {
       <PageHeader
         eyebrow="FAQ"
         title="Preguntas frecuentes"
+        graphic="sphere"
         description="Resolvemos las dudas más comunes sobre inscripción, equipos y el evento."
       />
 
@@ -40,7 +42,7 @@ export default function Faq() {
           onChange={setFilter}
         />
 
-        <div className="mx-auto mt-12 flex max-w-3xl flex-col gap-12">
+        <div className="mt-12 flex flex-col gap-14">
           {visibleCategories.map((category) => {
             const items = faqs
               .filter((faq) => faq.category === category)
@@ -48,23 +50,25 @@ export default function Faq() {
             if (items.length === 0) return null;
 
             return (
-              <div key={category}>
-                <h2 className="mb-4 font-poppins font-semibold text-xl md:text-2xl text-white">
+              <div
+                key={category}
+                className="reveal grid gap-4 lg:grid-cols-[16rem_1fr] lg:gap-12"
+              >
+                <h2 className="poster-title text-2xl md:text-3xl">
                   {faqCategoryLabels[category]}
                 </h2>
 
-                {/*Acordeon*/}
-                <div className="flex flex-col gap-3">
+                <div className="border-t border-white/15">
                   {items.map((faq) => (
                     <details
                       key={faq.id}
-                      className="group rounded-xl border border-white/10 bg-white/5 transition-colors open:border-blue/40"
+                      className="group border-b border-white/15"
                     >
-                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 md:p-6 font-poppins font-medium text-white md:text-[17px] hover:text-[#9fbfed] [&::-webkit-details-marker]:hidden">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-display font-bold text-lg hover:text-sky [&::-webkit-details-marker]:hidden">
                         {faq.question}
-                        <ChevronDownIcon className="w-5 h-5 shrink-0 text-blue transition-transform duration-300 group-open:rotate-180" />
+                        <ChevronDownIcon className="w-5 h-5 shrink-0 text-sky transition-transform duration-300 group-open:rotate-180" />
                       </summary>
-                      <p className="px-5 md:px-6 pb-5 md:pb-6 text-white/70 leading-relaxed">
+                      <p className="pb-6 max-w-2xl text-white/70 leading-relaxed">
                         {faq.answer}
                       </p>
                     </details>
@@ -74,21 +78,19 @@ export default function Faq() {
             );
           })}
         </div>
+      </Section>
 
-        {/*Contacto*/}
-        <div className="mx-auto mt-16 max-w-3xl rounded-2xl border border-white/10 bg-navy px-6 py-10 text-center">
-          <h2 className="font-poppins font-bold text-2xl md:text-3xl text-white text-glow">
-            ¿No encontraste tu respuesta?
-          </h2>
-          <p className="font-poppins mt-3 text-white/70">
-            Escríbenos por cualquiera de nuestras redes y te ayudamos.
-          </p>
-          <a
-            href="#contacto"
-            className="mt-6 inline-block font-poppins font-semibold text-lavender hover:underline"
-          >
-            Ver contacto
-          </a>
+      <Section tone="cobalt" className="dot-grid">
+        <div className="reveal flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="poster-title text-4xl md:text-5xl">
+              ¿No encontraste tu respuesta?
+            </h2>
+            <p className="mt-3 text-lg italic font-light">
+              Escríbenos por cualquiera de nuestras redes y te ayudamos.
+            </p>
+          </div>
+          <ButtonLink to="#contacto">Ver contacto</ButtonLink>
         </div>
       </Section>
     </>

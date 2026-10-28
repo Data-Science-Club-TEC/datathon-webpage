@@ -70,7 +70,7 @@ const visibilityOptions: {
 ];
 
 const panelClass =
-  "animate-step-in rounded-xl border border-white/10 bg-white/[0.02] p-5 md:p-6";
+  "animate-step-in rounded-none border border-white/10 bg-white/[0.02] p-5 md:p-6";
 
 function JoinTeam({ draft, errors, update }: StepProps) {
   const [status, setStatus] = useState<
@@ -152,7 +152,7 @@ function JoinTeam({ draft, errors, update }: StepProps) {
 
       {preview && (
         <div
-          className={`animate-step-in mt-5 flex items-center gap-4 rounded-lg border p-4 ${
+          className={`animate-step-in mt-5 flex items-center gap-4 rounded-none border p-4 ${
             isFull ? "border-danger/40 bg-danger/5" : "border-blue/40 bg-blue/10"
           }`}
         >
@@ -211,7 +211,7 @@ export default function StepTeam(props: StepProps) {
                         type="button"
                         aria-pressed={selected}
                         onClick={() => update({ interestArea: area })}
-                        className={`rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+                        className={`rounded-none border px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
                           selected
                             ? "border-blue bg-blue text-navy"
                             : "border-white/15 text-white/70 hover:border-white/35 hover:text-white"

@@ -1,17 +1,25 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500&display=swap");
 
+/* Identidad DSC (posts de Instagram): negro + azul electrico/cobalto, chispa naranja, tipografia pesada en mayusculas */
 @theme {
   --color-navy: #091840;
   --color-navy-dark: #010614;
   --color-navy-bright: #071436;
+  --color-cobalt: #1f4185;
+  --color-electric: #2347e8;
   --color-blue: #6da1ea;
+  --color-sky: #9fbfed;
   --color-lavender: #dad1fd;
-  --color-light-blue: #6da1ea;
+  --color-ember: #ff6a2b;
+  /* Formulario de inscripcion: cian marino y su acento claro */
+  --color-teal: #0b4a66;
+  --color-cyan: #5fd4e8;
+  --font-display: "Inter", sans-serif;
   --color-sponsor-card: #216194;
   --color-danger: #f4a3b4;
-  --font-heading: "Poppins", sans-serif;
   --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-brand: "Poppins", sans-serif;
 }
 
 @layer base {
@@ -21,12 +29,22 @@
   }
 
   body {
-    @apply bg-navy-dark text-black;
+    @apply bg-navy-dark text-white antialiased;
   }
 
   h1,
   h2,
   h3 {
-    font-family: var(--font-heading);
+    font-family: var(--font-display);
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-sky;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }

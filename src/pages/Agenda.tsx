@@ -11,16 +11,14 @@ import { scheduleEvents } from "../data/schedule.ts";
 import type { ScheduleEvent, ScheduleEventKind } from "../types/content.ts";
 import { dayKey, formatShortDate, formatTime } from "../utils/format.ts";
 
-const kindStyles: Record<
-  ScheduleEventKind,
-  { label: string; className: string }
-> = {
-  ceremony: { label: "Ceremonia", className: "bg-lavender/15 text-lavender" },
-  workshop: { label: "Taller", className: "bg-blue/15 text-blue" },
-  hacking: { label: "Hacking", className: "bg-blue/25 text-white" },
-  meal: { label: "Comida", className: "bg-white/10 text-white/80" },
-  deadline: { label: "Entrega", className: "bg-lavender/30 text-white" },
-  activity: { label: "Actividad", className: "bg-white/10 text-white/80" },
+// Color del marcador por tipo; el naranja (chispa de los posts) marca lo que no te puedes perder
+const kindStyles: Record<ScheduleEventKind, { label: string; dot: string }> = {
+  ceremony: { label: "Ceremonia", dot: "bg-lavender" },
+  workshop: { label: "Taller", dot: "bg-blue" },
+  hacking: { label: "Hacking", dot: "bg-electric" },
+  meal: { label: "Comida", dot: "bg-white/40" },
+  deadline: { label: "Entrega", dot: "bg-ember" },
+  activity: { label: "Actividad", dot: "bg-white/40" },
 };
 
 type ScheduleDay = { key: string; events: ScheduleEvent[] };
@@ -55,12 +53,13 @@ export default function Agenda() {
       <PageHeader
         eyebrow="Agenda"
         title="Agenda del evento"
+        spark={false}
         description="Ceremonias, talleres, comidas y entregas: así se viven los días del Datathon."
       />
 
       <Section className="pt-0 md:pt-0">
         {days.length === 0 ? (
-          <p className="text-center font-poppins text-white/70">
+          <p className="text-xl italic text-white/70">
             La agenda se publicará próximamente.
           </p>
         ) : (
@@ -71,68 +70,62 @@ export default function Agenda() {
               value={selectedDay}
               onChange={setSelectedDay}
             />
-            <p className="mt-4 mb-12 text-center text-sm text-white/50">
+            <p className="mt-4 mb-10 text-sm italic text-white/50">
               Horarios en hora de Monterrey. Sujetos a cambios.
             </p>
 
-            {/*Timeline*/}
-            <ol className="mx-auto max-w-3xl">
-              {events.map((event, i) => {
+            <ol className="border-t border-white/15">
+              {events.map((event) => {
                 const kind = kindStyles[event.kind];
                 return (
                   <li
                     key={event.id}
-                    className="grid grid-cols-[auto_1fr] gap-x-4 md:gap-x-8"
+                    className="reveal grid gap-2 sm:grid-cols-[9rem_1fr] md:grid-cols-[12rem_1fr] sm:gap-8 border-b border-white/15 py-6 md:py-8"
                   >
-                    <div className="flex flex-col items-center">
-                      <span className="mt-7 h-3 w-3 shrink-0 rounded-full bg-blue shadow-[0_0_10px_var(--color-blue)]" />
-                      {i < events.length - 1 && (
-                        <span className="w-px flex-1 bg-white/10" />
-                      )}
-                    </div>
-
-                    <article className="mb-6 rounded-xl border border-white/10 bg-white/5 p-5 md:p-6">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <time
-                          dateTime={event.startsAt}
-                          className="font-poppins font-semibold text-blue tabular-nums"
-                        >
-                          {formatTime(event.startsAt)}
-                          {event.endsAt && ` – ${formatTime(event.endsAt)}`}
-                        </time>
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${kind.className}`}
-                        >
-                          {kind.label}
+                    <time
+                      dateTime={event.startsAt}
+                      className="font-display font-black text-2xl md:text-3xl tabular-nums"
+                    >
+                      {formatTime(event.startsAt)}
+                      {event.endsAt && (
+                        <span className="block text-base font-medium text-white/50">
+                          hasta {formatTime(event.endsAt)}
                         </span>
-                      </div>
-                      <h3 className="mt-3 font-poppins font-semibold text-lg md:text-xl text-white">
+                      )}
+                    </time>
+
+                    <div>
+                      <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-white/60">
+                        <span className={`h-2 w-2 rounded-full ${kind.dot}`} />
+                        {kind.label}
+                      </p>
+                      <h3 className="mt-2 font-display font-bold text-xl md:text-2xl">
                         {event.title}
                       </h3>
                       {event.description && (
-                        <p className="mt-2 text-[15px] text-white/70">
-                          {event.description}
-                        </p>
+                        <p className="mt-2 text-white/70">{event.description}</p>
                       )}
                       {event.location && (
-                        <p className="mt-3 flex items-center gap-2 text-sm text-lavender/75">
+                        <p className="mt-3 flex items-center gap-2 text-sm text-white/80 underline underline-offset-4 decoration-white/30">
                           <MapPinIcon className="w-4 h-4" />
                           {event.location}
                         </p>
                       )}
-                    </article>
+                    </div>
                   </li>
                 );
               })}
             </ol>
           </>
         )}
+      </Section>
 
-        <div className="mt-12 flex flex-col items-center gap-4 text-center">
-          <p className="font-poppins text-white/70">¿Tienes dudas sobre el evento?</p>
-          <ButtonLink to="/faq" variant="secondary">
-            Ver preguntas frecuentes
-          </ButtonLink>
+      <Section tone="cobalt" className="dot-grid">
+        <div className="reveal flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <h2 className="poster-title text-4xl md:text-5xl">
+            ¿Tienes dudas sobre el evento?
+          </h2>
+          <ButtonLink to="/faq">Ver preguntas frecuentes</ButtonLink>
         </div>
       </Section>
     </>

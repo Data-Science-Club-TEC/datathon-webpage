@@ -100,7 +100,7 @@ export default function OtpInput({
           onChange={(e) => handleInput(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
-          className={`h-14 w-11 rounded-lg border bg-navy-dark/70 text-center font-mono text-2xl text-white outline-none transition-colors focus:border-blue focus:ring-2 focus:ring-blue/25 disabled:opacity-50 sm:w-13 ${
+          className={`h-14 w-11 rounded-none border bg-navy-dark/70 text-center font-mono text-2xl text-white outline-none transition-colors focus:border-blue focus:ring-2 focus:ring-blue/25 disabled:opacity-50 sm:w-13 ${
             invalid
               ? "border-danger/70"
               : digit

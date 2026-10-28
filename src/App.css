@@ -1,62 +1,138 @@
 @reference "./index.css";
 @layer components {
-  .font-poppins {
-    font-family: var(--font-heading);
+  /* Titular tipo poster: pesado, mayusculas, interlineado cerrado */
+  .poster-title {
+    @apply font-display font-black uppercase tracking-tight leading-[0.92];
   }
-  .text-glow {
-    text-shadow: 0 0 15px var(--color-blue);
+  .eyebrow {
+    @apply font-mono text-xs md:text-sm uppercase tracking-[0.2em] text-sky;
   }
-  .card-glow {
-    filter: drop-shadow(0 0 10px var(--color-blue));
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md border-2 px-7 py-3.5 font-display font-bold uppercase tracking-wide text-sm md:text-base transition active:scale-95;
   }
-  .btn-glow {
-    box-shadow: 0 0 20px var(--color-blue);
+  /* Primario = la etiqueta blanca "Regístrate" de los posts */
+  .btn-primary {
+    @apply border-white bg-white text-navy-dark hover:border-lavender hover:bg-lavender;
   }
-  .section-dark {
-    background-color: var(--color-navy-dark);
+  .btn-secondary {
+    @apply border-white/40 text-white hover:bg-white/10;
   }
-  .sponsor-card {
-    background-color: var(--color-sponsor-card);
-    @apply rounded-xl p-8 flex flex-col gap-12;
+  .card {
+    @apply rounded-lg border border-white/10 bg-white/[0.03];
+  }
+  /* Textura de puntos (malla de datos) para las bandas cobalto */
+  .dot-grid {
+    background-image: radial-gradient(rgb(255 255 255 / 0.14) 1px, transparent 1.5px);
+    background-size: 22px 22px;
   }
 }
 
-#carousel-track {
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+/* FAQ: el acordeon se abre animado donde el navegador lo soporta */
+:root {
+  interpolate-size: allow-keywords;
 }
-#carousel-track::-webkit-scrollbar {
-  display: none;
+details::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 0.35s ease,
+    content-visibility 0.35s allow-discrete;
 }
-.carousel-slide {
-  scroll-snap-align: start;
+details[open]::details-content {
+  block-size: auto;
 }
 
 @keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
   to {
     transform: translateX(-50%);
   }
 }
-
-.animate-marquee {
-  animation: marquee 35s linear infinite;
+@keyframes float {
+  50% {
+    transform: translateY(-4%);
+  }
 }
-
-@keyframes pulse-bg {
-  0%,
-  100% {
-    background-color: var(--color-navy-dark);
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* scaleX 0→1→0 con easing ≈ |sin|: proyeccion de un meridiano girando */
+@keyframes meridian {
+  0% {
+    transform: scaleX(0);
+    animation-timing-function: ease-out;
   }
   50% {
-    background-color: var(--color-navy-bright);
+    transform: scaleX(1);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+@keyframes drift {
+  to {
+    background-position: 22px 22px;
+  }
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 48px;
+  }
+}
+@keyframes parallax {
+  to {
+    translate: 0 -12vh;
+    opacity: 0.4;
   }
 }
 
-.animate-pulse-bg {
-  animation: pulse-bg 6s ease-in-out infinite;
+.animate-meridian {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
+  }
+  .animate-float {
+    animation: float 9s ease-in-out infinite;
+  }
+  .animate-orbit {
+    animation: orbit 24s linear infinite;
+  }
+  .animate-meridian {
+    animation: meridian 12s infinite;
+  }
+  .animate-rise {
+    animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .dot-grid {
+    animation: drift 6s linear infinite;
+  }
+
+  /* Scroll-driven: sin JS; en navegadores sin soporte el contenido simplemente aparece */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+    .parallax {
+      animation: parallax linear both;
+      animation-timeline: scroll();
+      animation-range: 0 100vh;
+    }
+  }
 }
 
 /* Inscripcion: entrada de cada paso */
