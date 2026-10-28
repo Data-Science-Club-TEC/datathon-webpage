@@ -85,8 +85,8 @@ export default function StepEmail({
 
   if (draft.emailVerified) {
     return (
-      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-blue/40 bg-blue/10 p-5">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue text-navy">
+      <div className="flex flex-wrap items-center gap-4 rounded-none border border-blue/40 bg-blue/10 p-5">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-none bg-blue text-navy">
           <ShieldIcon className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
@@ -218,7 +218,7 @@ export default function StepEmail({
           </div>
 
           {IS_MOCK_SERVICE && (
-            <p className="rounded-lg border border-dashed border-white/15 px-4 py-3 text-[13px] text-white/50">
+            <p className="rounded-none border border-dashed border-white/15 px-4 py-3 text-[13px] text-white/50">
               Modo demo: cualquier código de 6 dígitos funciona; 000000 simula un
               código incorrecto.
             </p>

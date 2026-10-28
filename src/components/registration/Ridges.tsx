@@ -40,7 +40,7 @@ export default function Ridges({ className = "" }: { className?: string }) {
 
       <path d={area(BACK)} className="fill-lavender/[0.07]" />
       <path d={line(BACK)} fill="none" strokeWidth="1.25" className="stroke-lavender/35" />
-      {BACK.map(([x, y]) => (
+      {BACK.filter(([x]) => x > 0 && x < 1440).map(([x, y]) => (
         <circle key={x} cx={x} cy={y} r="2.5" className="fill-lavender/60" />
       ))}
       <circle cx={PEAK[0]} cy={PEAK[1]} r="9" className="fill-lavender/15" />

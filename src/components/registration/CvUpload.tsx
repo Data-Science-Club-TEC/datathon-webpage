@@ -67,8 +67,8 @@ export default function CvUpload({ file, onChange, error }: CvUploadProps) {
       />
 
       {file ? (
-        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-blue/40 bg-blue/10 p-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue text-navy">
+        <div className="flex flex-wrap items-center gap-4 rounded-none border border-blue/40 bg-blue/10 p-4">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-none bg-blue text-navy">
             <FileIcon className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -110,7 +110,7 @@ export default function CvUpload({ file, onChange, error }: CvUploadProps) {
             setDragging(false);
             void handleFile(e.dataTransfer.files[0]);
           }}
-          className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
+          className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-none border-2 border-dashed px-6 py-10 text-center transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-blue/60 ${
             dragging
               ? "border-blue bg-blue/10"
               : message

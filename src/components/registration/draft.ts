@@ -104,6 +104,7 @@ export const emptyDraft: RegistrationDraft = {
 export const STEPS = [
   {
     id: "email",
+    tip: "Si el código no llega, revisa tu carpeta de spam.",
     title: "Correo",
     heading: "Verifica tu correo",
     description:
@@ -111,18 +112,21 @@ export const STEPS = [
   },
   {
     id: "personal",
+    tip: "Tu teléfono solo se usa para avisos del evento.",
     title: "Datos personales",
     heading: "Cuéntanos de ti",
     description: "Usaremos estos datos para tu gafete y para contactarte durante el evento.",
   },
   {
     id: "academic",
+    tip: "Puedes volver a editar esto desde el último paso.",
     title: "Formación académica",
     heading: "¿Dónde estudias?",
     description: "Si tu escuela o carrera no aparece, puedes escribirla.",
   },
   {
     id: "experience",
+    tip: "Responder con honestidad nos ayuda a armar mejores equipos.",
     title: "Experiencia",
     heading: "Tu experiencia",
     description:
@@ -130,6 +134,7 @@ export const STEPS = [
   },
   {
     id: "profiles",
+    tip: "Prueba que tus enlaces abran antes de continuar.",
     title: "Perfiles y CV",
     heading: "Perfiles y CV",
     description:
@@ -137,12 +142,14 @@ export const STEPS = [
   },
   {
     id: "team",
+    tip: "¿Aún sin equipo? Puedes decidirlo después.",
     title: "Equipo",
     heading: "¿Tienes equipo?",
     description: "Puedes unirte a uno, crear el tuyo o decidirlo después.",
   },
   {
     id: "review",
+    tip: "Puedes volver a cualquier paso antes de enviar.",
     title: "Confirmación",
     heading: "Revisa y confirma",
     description: "Verifica que todo esté correcto antes de enviar.",

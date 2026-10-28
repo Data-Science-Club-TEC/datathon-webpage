@@ -1,6 +1,6 @@
 import { genderOptions } from "../../data/registration.ts";
 import type { StepProps } from "./draft.ts";
-import { AddonInput, Field, Segmented } from "./fields.tsx";
+import { AddonInput, Field, Group, Segmented } from "./fields.tsx";
 import { inputClass } from "./styles.ts";
 import { MIN_AGE } from "./validation.ts";
 
@@ -37,7 +37,9 @@ function parsePhoneInput(input: HTMLInputElement, previous: string) {
 
 export default function StepPersonal({ draft, errors, update }: StepProps) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2">
+    <div className="flex flex-col gap-5">
+      <Group title="Identidad">
+        <div className="grid gap-6 sm:grid-cols-2">
       <Field label="Nombre(s)" error={errors.firstName}>
         {(control) => (
           <input
@@ -66,6 +68,11 @@ export default function StepPersonal({ draft, errors, update }: StepProps) {
         )}
       </Field>
 
+        </div>
+      </Group>
+
+      <Group title="Contacto y perfil">
+        <div className="grid gap-6 sm:grid-cols-2">
       <Field
         label="Teléfono celular"
         hint="10 dígitos. Solo lo usaremos para avisos del evento."
@@ -110,6 +117,8 @@ export default function StepPersonal({ draft, errors, update }: StepProps) {
           error={errors.gender}
         />
       </div>
+        </div>
+      </Group>
     </div>
   );
 }

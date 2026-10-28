@@ -40,7 +40,7 @@ export default function StepRail({
             Paso {current + 1} de {STEPS.length}
           </span>
         </div>
-        <AscentProgress total={STEPS.length} current={current} className="mt-3" />
+        <AscentProgress total={STEPS.length} current={current} className="mt-3 max-h-20" />
         <AscentCaption />
       </div>
 
@@ -73,9 +73,9 @@ export default function StepRail({
                     className="group flex w-full items-center gap-4 text-left disabled:cursor-default"
                   >
                     <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border font-mono text-xs transition-colors ${
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-none border font-mono text-xs transition-colors ${
                         isCurrent
-                          ? "border-lavender bg-lavender text-navy shadow-[0_0_14px_rgba(218,209,253,0.45)]"
+                          ? "border-ember bg-ember text-navy-dark font-bold"
                           : isDone
                             ? "border-blue bg-blue/15 text-blue"
                             : "border-white/15 text-white/40"

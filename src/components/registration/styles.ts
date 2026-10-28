@@ -1,18 +1,18 @@
 // Clases compartidas por los controles del formulario de inscripcion
 
 export const labelClass =
-  "flex items-baseline justify-between gap-3 text-sm font-medium text-white/85";
+  "flex items-baseline justify-between gap-3 text-sm font-semibold text-white";
 
 export const inputClass =
-  "h-12 w-full rounded-lg border border-white/10 bg-navy-dark/70 px-4 text-[15px] text-white placeholder:text-white/30 outline-none transition-colors hover:border-white/20 focus:border-blue focus:ring-2 focus:ring-blue/25 aria-invalid:border-danger/70 disabled:cursor-not-allowed disabled:opacity-60 [color-scheme:dark]";
+  "h-12 w-full rounded-none border-2 border-white/20 bg-navy-dark px-4 text-base text-white md:text-[15px] placeholder:text-white/30 outline-none transition hover:border-white/40 focus:border-cyan focus:shadow-[4px_4px_0_0_var(--color-cobalt)] aria-invalid:border-danger disabled:cursor-not-allowed disabled:opacity-60 [color-scheme:dark]";
 
 const buttonBase =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full font-poppins font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-none font-display font-bold uppercase tracking-wide text-sm transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonStyles = {
-  primary: `${buttonBase} btn-glow bg-blue px-7 text-navy hover:brightness-110 disabled:shadow-none disabled:hover:brightness-100`,
-  secondary: `${buttonBase} border border-white/20 bg-white/5 px-6 text-white hover:border-white/40 hover:text-[#9fbfed]`,
-  ghost: `${buttonBase} px-4 font-medium text-white/65 hover:text-white`,
+  primary: `${buttonBase} border-2 border-white bg-white px-7 text-navy-dark hover:border-lavender hover:bg-lavender`,
+  secondary: `${buttonBase} border-2 border-white/40 px-6 text-white hover:bg-white/10`,
+  ghost: `${buttonBase} px-4 text-white/65 hover:text-white`,
 };
 
 export const messageClass = (isError: boolean) =>

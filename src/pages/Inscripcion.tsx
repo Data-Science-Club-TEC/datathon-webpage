@@ -194,7 +194,7 @@ export default function Inscripcion() {
 
   return (
     // overflow-x-clip (no overflow-hidden) para no romper el sticky del panel lateral
-    <section className="section-dark relative overflow-x-clip pt-32 pb-24 md:pt-40 md:pb-32">
+    <section className="bg-navy-dark relative overflow-x-clip pt-32 pb-24 md:pt-40 md:pb-32">
       {/*Fondo: curvas de nivel y brillo*/}
       <TopoLines className="pointer-events-none absolute -top-16 -right-72 w-[1100px] max-w-none [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_70%)] md:-right-40" />
       <div
@@ -212,7 +212,7 @@ export default function Inscripcion() {
             <RegistrationSuccess draft={draft} result={result} />
           ) : (
             <header className="max-w-2xl">
-              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 font-poppins text-lg font-semibold tracking-tight">
+              <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 font-brand text-lg font-semibold tracking-tight">
                 <span>
                   <span className="text-blue">data</span>
                   <span className="text-lavender">thon</span>{" "}
@@ -222,10 +222,10 @@ export default function Inscripcion() {
                   / inscripción
                 </span>
               </p>
-              <h1 className="mt-3 font-poppins text-4xl font-bold leading-tight text-white text-glow md:text-[56px]">
+              <h1 className="mt-3 poster-title text-5xl text-white md:text-7xl">
                 Asegura tu lugar
               </h1>
-              <p className="mt-4 max-w-xl font-poppins text-[16px] text-white/70 md:text-[18px]">
+              <p className="mt-4 max-w-xl text-[16px] font-light italic text-white/80 md:text-xl">
                 Completa tu registro en unos minutos. Puedes inscribirte con
                 equipo, sin equipo o crear el tuyo.
               </p>
@@ -234,12 +234,12 @@ export default function Inscripcion() {
         </div>
       </div>
 
-      <Ridges className="relative mt-6 block h-[120px] w-full md:-mt-4 md:h-[220px]" />
+      <Ridges className="relative mt-2 block h-[90px] w-full md:-mt-4 md:h-[220px]" />
 
       {!result && (
         // La tarjeta se monta sobre la cordillera; el panel lateral empieza debajo
         <div className="relative mt-2 px-6 md:-mt-28 md:px-12 lg:px-20">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-14">
+          <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-14">
             <aside className="md:pt-28 lg:sticky lg:top-28 lg:self-start">
               <StepRail
                 current={step}
@@ -266,31 +266,64 @@ export default function Inscripcion() {
             </aside>
 
             <div ref={panelRef} className="scroll-mt-28">
-              {/*Esquinas del contenedor del logo: redondas a la izquierda*/}
+              {/*Tarjeta opaca y de esquinas rectas: banda azul electrico arriba, como los posts*/}
               <form
                 noValidate
                 onSubmit={handleSubmit}
-                className="relative rounded-2xl border border-white/10 bg-navy/80 shadow-2xl shadow-black/50 backdrop-blur-md before:pointer-events-none before:absolute before:inset-x-12 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-lavender/60 before:to-transparent lg:rounded-l-[2.75rem] lg:rounded-r-2xl"
+                className="relative border-2 border-white/20 bg-navy shadow-[6px_6px_0_0_var(--color-cobalt)] md:shadow-[10px_10px_0_0_var(--color-cobalt)]"
               >
-                <div key={step} className="animate-step-in px-5 py-7 sm:px-8 md:px-10 md:py-10">
-                  <p className="font-mono text-xs uppercase tracking-[0.2em] text-blue">
-                    Paso {pad(step + 1)} / {pad(STEPS.length)}
-                  </p>
-                  <h2
-                    ref={headingRef}
-                    tabIndex={-1}
-                    className="mt-3 font-poppins text-2xl font-bold text-white outline-none md:text-[32px]"
+                <div key={step} className="animate-step-in">
+                  <div className="dot-grid relative overflow-hidden bg-teal px-5 py-6 sm:px-8 sm:py-7 md:px-10 md:py-9">
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -right-2 -bottom-6 hidden select-none sm:block font-display text-[6rem] font-black leading-none text-cyan/15 sm:text-[9rem] md:text-[12rem]"
+                    >
+                      {pad(step + 1)}
+                    </span>
+                    <p className="relative flex items-center gap-3 font-mono text-xs uppercase tracking-[0.2em]">
+                      <span className="whitespace-nowrap bg-cyan px-2 py-1 font-bold text-navy-dark">
+                        Paso {pad(step + 1)} / {pad(STEPS.length)}
+                      </span>
+                      <span className="hidden text-white/80 sm:inline">{current.title}</span>
+                    </p>
+                    <h2
+                      ref={headingRef}
+                      tabIndex={-1}
+                      className="poster-title relative mt-3 text-[1.65rem] text-white outline-none sm:text-3xl md:mt-4 md:text-5xl"
+                    >
+                      {current.heading}
+                    </h2>
+                    <p className="relative mt-3 max-w-xl text-[15px] font-light italic text-white/90">
+                      {current.description}
+                    </p>
+                  </div>
+                  <div
+                    role="progressbar"
+                    aria-label="Progreso de la inscripción"
+                    aria-valuemin={1}
+                    aria-valuemax={STEPS.length}
+                    aria-valuenow={step + 1}
+                    className="h-1.5 bg-navy-dark"
                   >
-                    {current.heading}
-                  </h2>
-                  <p className="mt-2 max-w-xl text-[15px] text-white/60">
-                    {current.description}
-                  </p>
-                  <div className="mt-8">{renderStep()}</div>
+                    <div
+                      className="h-full bg-cyan transition-[width] duration-500 ease-out"
+                      style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+                    />
+                  </div>
+
+                  <div className="px-4 py-6 sm:px-8 sm:py-7 md:px-10 md:py-10">
+                    <div>{renderStep()}</div>
+                    <p className="mt-8 flex items-start gap-3 border-l-4 border-cyan bg-navy-dark/60 px-4 py-3 text-[14px] text-white/80">
+                      <span className="mt-0.5 shrink-0 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-cyan">
+                        Dato
+                      </span>
+                      {current.tip}
+                    </p>
+                  </div>
                 </div>
 
                 {(step > 0 || showNext) && (
-                  <div className="flex items-center justify-between gap-4 border-t border-white/10 px-5 py-5 sm:px-8 md:px-10">
+                  <div className="flex flex-col-reverse items-stretch gap-3 border-t-2 border-white/10 bg-navy-dark px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 md:px-10">
                     {step > 0 ? (
                       <button
                         type="button"
@@ -302,7 +335,7 @@ export default function Inscripcion() {
                         Atrás
                       </button>
                     ) : (
-                      <span />
+                      <span className="hidden sm:block" />
                     )}
                     {showNext && (
                       <button
